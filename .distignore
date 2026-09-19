@@ -1,0 +1,8 @@
+.git
+.gitattributes
+.gitignore
+.idea
+.distignore
+tests
+phpunit.xml.dist
+README.md
