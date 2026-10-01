@@ -14,6 +14,7 @@ callback and output validation are all exercised the way an MCP client would hit
 | `store-stats-test.php` | Totals, tax, refunds, custom date ranges |
 | `licenses-test.php` | Software Licensing abilities (skipped if the add-on is not loaded) |
 | `subscriptions-test.php` | Recurring Payments abilities (skipped if the add-on is not loaded) |
+| `releases-test.php` | `edd/release-product-version`: fetch, changelog prepend, guard clauses, permissions (skipped unless Software Licensing and the Git Download Updater are both loaded) |
 | `helpers-test.php` | Autoloader file naming, `Schema` helpers |
 
 ## Requirements
@@ -23,10 +24,14 @@ callback and output validation are all exercised the way an MCP client would hit
 - `yoast/phpunit-polyfills` (`WP_TESTS_PHPUNIT_POLYFILLS_PATH`) and PHPUnit 9.6.
 - An EDD 3.x checkout. `EDD_DIR` points at it; it defaults to a sibling `../easy-digital-downloads`.
   The tests were written and run against **EDD 3.5.3**; the older 3.0.x checkout is not supported.
-- Optional: `EDD_SL_DIR` (Software Licensing, tested on 3.9.1) and `EDD_RECURRING_DIR` (Recurring Payments,
-  tested on 2.13.9). Each defaults to a sibling folder. If one is missing its test class skips itself, and
-  `registry-test.php` instead asserts that its abilities are **not** registered. The add-ons' tables are
-  installed through EDD's component registry, so no extra setup is needed.
+- Optional: `EDD_SL_DIR` (Software Licensing, tested on 3.9.1), `EDD_RECURRING_DIR` (Recurring Payments,
+  tested on 2.13.9) and `EDD_GIT_DIR` (Git Download Updater, tested on 1.3.1). Each defaults to a sibling
+  folder. If one is missing its test class skips itself, and `registry-test.php` instead asserts that its
+  abilities are **not** registered. The add-ons' tables are installed through EDD's component registry,
+  so no extra setup is needed.
+- `releases-test.php` never makes a real request to GitHub or Bitbucket - it fakes the Git Download
+  Updater's own HTTP call with a `pre_http_request` filter, returning a small real zip built on the fly
+  (see `mock_zipball()` in `framework/class-edd-abilities-addon-test-cases.php`).
 
 ## Running
 

@@ -9,8 +9,8 @@
  * Environment variables:
  *  - WP_TESTS_DIR: the WordPress test library (defaults to the system temp dir)
  *  - EDD_DIR:      the Easy Digital Downloads plugin folder (defaults to a sibling `easy-digital-downloads`)
- *  - EDD_SL_DIR / EDD_RECURRING_DIR: optional Software Licensing / Recurring Payments folders
- *                  (default to siblings). When absent, their tests are skipped.
+ *  - EDD_SL_DIR / EDD_RECURRING_DIR / EDD_GIT_DIR: optional Software Licensing / Recurring Payments /
+ *                  Git Download Updater folders (default to siblings). When absent, their tests are skipped.
  *
  * @package EDD_Abilities
  */
@@ -48,6 +48,10 @@ $_addons = [
 	'recurring'          => [
 		'dir'  => getenv( 'EDD_RECURRING_DIR' ) ? getenv( 'EDD_RECURRING_DIR' ) : dirname( __DIR__, 3 ) . '/edd-recurring',
 		'file' => 'edd-recurring.php',
+	],
+	'git-updater'        => [
+		'dir'  => getenv( 'EDD_GIT_DIR' ) ? getenv( 'EDD_GIT_DIR' ) : dirname( __DIR__, 3 ) . '/edd-git-download-updater',
+		'file' => 'git-download-updater.php',
 	],
 ];
 

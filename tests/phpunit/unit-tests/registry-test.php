@@ -53,12 +53,20 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 			'edd/get-subscription'   => 'edd-subscriptions',
 			'edd/cancel-subscription' => 'edd-subscriptions',
 		],
+		// Needs Software Licensing AND the Git Download Updater, so it's kept out of the generic
+		// single-addon loop below and checked on its own in test_the_release_ability_needs_both_addons().
 	];
 
 	protected function addon_is_active( string $addon ): bool {
 		return 'software-licensing' === $addon
 			? function_exists( 'edd_software_licensing' )
 			: class_exists( 'EDD_Subscription' );
+	}
+
+	protected function release_addons_are_active(): bool {
+		return function_exists( 'edd_git_download_updater' )
+			&& function_exists( 'edd_software_licensing' )
+			&& null !== edd_git_download_updater()->process_file;
 	}
 
 	/**
@@ -76,7 +84,22 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 			}
 		}
 
+		if ( $this->release_addons_are_active() ) {
+			$names[] = 'edd/release-product-version';
+		}
+
 		return $names;
+	}
+
+	public function test_the_release_ability_needs_both_software_licensing_and_the_git_updater() {
+
+		$active = $this->release_addons_are_active();
+
+		$this->assertSame( $active, wp_has_ability( 'edd/release-product-version' ), $active ? 'edd/release-product-version should be registered' : 'edd/release-product-version must not register without both add-ons' );
+
+		if ( $active ) {
+			$this->assertSame( 'edd-releases', wp_get_ability( 'edd/release-product-version' )->get_category() );
+		}
 	}
 
 	public function test_addon_abilities_register_if_and_only_if_their_addon_is_active() {
@@ -116,7 +139,7 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 			$is_read     = 0 === strpos( $name, 'edd/list-' ) || 0 === strpos( $name, 'edd/get-' ) || 'edd/search-customers' === $name;
 
 			$this->assertSame( $is_read, $annotations['readonly'], "$name readonly annotation" );
-			$this->assertSame( in_array( $name, [ 'edd/refund-order', 'edd/cancel-subscription' ], true ), $annotations['destructive'], "$name destructive annotation" );
+			$this->assertSame( in_array( $name, [ 'edd/refund-order', 'edd/cancel-subscription', 'edd/release-product-version' ], true ), $annotations['destructive'], "$name destructive annotation" );
 		}
 	}
 

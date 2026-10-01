@@ -6,8 +6,8 @@ so an assistant connected over [MCP](https://modelcontextprotocol.io) can look u
 products and discounts, pull sales stats, refund an order, and more, with the same permissions the
 connected WordPress user has in the admin.
 
-It also covers the **Software Licensing** and **Recurring Payments** add-ons. Their abilities register
-only when the add-on is active.
+It also covers the **Software Licensing**, **Recurring Payments** and **Git Download Updater** add-ons.
+Their abilities register only when the add-on is active.
 
 The plugin is standalone. It does not depend on Groundhogg or on any MCP plugin; it registers abilities
 and any Abilities API consumer can use them.
@@ -17,7 +17,8 @@ and any Abilities API consumer can use them.
 - WordPress 6.9 or later (the Abilities API is in core from 6.9)
 - PHP 7.4 or later
 - Easy Digital Downloads 3.x (developed and tested against 3.5.3)
-- Optional: EDD Software Licensing (tested on 3.9.1), EDD Recurring Payments (tested on 2.13.9)
+- Optional: EDD Software Licensing (tested on 3.9.1), EDD Recurring Payments (tested on 2.13.9),
+  EDD Git Download Updater (tested on 1.3.1)
 
 ## Installation
 
@@ -120,8 +121,9 @@ products?" or "Refund $10 of order 1234, the second item only."
 
 - **The token can do what its user can do.** Connect a dedicated user with just the roles you're happy
   for an assistant to hold (for example Shop Manager) rather than an administrator.
-- **Two abilities are marked destructive** so a well-behaved client asks before running them:
-  `edd/refund-order` and `edd/cancel-subscription`. Neither can be undone from here.
+- **Some abilities are marked destructive** so a well-behaved client asks before running them:
+  `edd/refund-order`, `edd/cancel-subscription` and `edd/release-product-version`. None can be undone
+  from here.
 - **Hide an ability entirely** by removing it from the registry:
 
   ```php
@@ -143,8 +145,9 @@ products?" or "Refund $10 of order 1234, the second item only."
 
 ## Available abilities
 
-22 abilities: 16 that need only EDD, plus 3 each for Software Licensing and Recurring Payments.
-"Requires" is the capability the connected user must hold. *Read* abilities change nothing.
+23 abilities: 16 that need only EDD, 3 each for Software Licensing and Recurring Payments, and 1 that
+needs Software Licensing and the Git Download Updater together. "Requires" is the capability the
+connected user must hold. *Read* abilities change nothing.
 
 ### Orders
 
@@ -207,6 +210,24 @@ that remaps who can see or edit customers is respected. By default that is `view
 | `edd/get-subscription` | Read | `edit_shop_payments` | One subscription: billing period, amounts, times billed, gateway profile, expiry, and whether it can be cancelled. |
 | `edd/cancel-subscription` | **Destructive** | `edit_shop_payments` | Cancel a subscription so it stops billing (and at the gateway where supported). Only offered where EDD Recurring says the gateway allows it. |
 
+### Releases *(only when EDD Software Licensing and the Git Download Updater are both active)*
+
+A product can be set up (on its Files tab, in the admin) to pull its download file from a tag in a
+connected GitHub or Bitbucket repository, rather than an uploaded file - that's the **Git Download
+Updater** add-on. This ability drives it from an agent instead of the admin screen, and also updates
+the Software Licensing changelog in the same step, which the admin screen does not do for you.
+
+| Ability | Type | Requires | What it does |
+|---|---|---|---|
+| `edd/release-product-version` | **Destructive** | `edit_products` | Pull a tag from the product's connected repository, repackage it as the download (bumping the Software Licensing version), and prepend your changelog HTML to the product's changelog. |
+
+`edd/release-product-version` takes `id`, `version` (the exact tag to pull - it does not create one)
+and `changelog` (your complete HTML entry for this release, including its own heading; it is prepended
+as-is above whatever changelog the product already has). It only ever acts on a product with exactly
+one file: the Git Download Updater replaces the entire file list with just the one it updates, so a
+product with more than one file entry is refused rather than risk deleting the others. Not idempotent -
+running it twice with the same version fetches the tag again and prepends the changelog entry again.
+
 ### Conventions
 
 - **Lists** take `limit` (default 20, max 100) and `offset` and return `total_items` for the whole match, so
@@ -215,8 +236,10 @@ that remaps who can see or edit customers is respected. By default that is `view
 - **Errors** are returned as WordPress errors with a stable code, e.g. `edd_abilities_not_found`,
   `refund_validation_error`, `ability_invalid_permissions`.
 
-Not included yet: creating or editing products, licensing activations and renewals, and subscription
-changes other than cancelling.
+Not included yet: creating or editing products (beyond shipping a new git-based version), licensing
+activations and renewals, subscription changes other than cancelling, and connecting a GitHub/Bitbucket
+account or a repository to a product for the first time (`edd/release-product-version` only ships a
+version on a product that's already connected).
 
 ## Adding your own abilities
 

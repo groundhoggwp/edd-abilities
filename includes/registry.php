@@ -20,6 +20,7 @@ use EDD_Abilities\Abilities\Orders\Refund_Order;
 use EDD_Abilities\Abilities\Orders\Update_Order_Status;
 use EDD_Abilities\Abilities\Products\Get_Product;
 use EDD_Abilities\Abilities\Products\List_Products;
+use EDD_Abilities\Abilities\Releases\Release_Product_Version;
 use EDD_Abilities\Abilities\Reports\Get_Store_Stats;
 use EDD_Abilities\Abilities\Subscriptions\Cancel_Subscription;
 use EDD_Abilities\Abilities\Subscriptions\Get_Subscription;
@@ -178,6 +179,10 @@ class Registry {
 				'label'       => __( 'EDD Recurring Payments', 'edd-abilities' ),
 				'description' => __( 'Find and manage Recurring Payments subscriptions.', 'edd-abilities' ),
 			],
+			'edd-releases'      => [
+				'label'       => __( 'EDD Releases', 'edd-abilities' ),
+				'description' => __( 'Ship new versions of products whose files are pulled from a connected git repository.', 'edd-abilities' ),
+			],
 		];
 
 		/**
@@ -224,6 +229,8 @@ class Registry {
 			List_Subscriptions::class,
 			Get_Subscription::class,
 			Cancel_Subscription::class,
+			// Releases (Git Download Updater + Software Licensing)
+			Release_Product_Version::class,
 		];
 
 		/**
