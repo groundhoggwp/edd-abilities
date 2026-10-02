@@ -16,7 +16,9 @@ and any Abilities API consumer can use them.
 
 - WordPress 6.9 or later (the Abilities API is in core from 6.9)
 - PHP 7.4 or later
-- Easy Digital Downloads 3.x (developed and tested against 3.5.3)
+- Easy Digital Downloads 3.x, free or Pro (developed and tested against Pro 3.5.3). The plugin checks
+  for EDD at runtime rather than declaring a `Requires Plugins` dependency, because WordPress matches
+  that by slug and can't be satisfied by the Pro build.
 - Optional: EDD Software Licensing (tested on 3.9.1), EDD Recurring Payments (tested on 2.13.9),
   EDD Git Download Updater (tested on 1.3.1)
 

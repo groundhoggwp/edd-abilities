@@ -2,10 +2,9 @@
 /**
  * Plugin Name:       Abilities for Easy Digital Downloads
  * Description:       Exposes Easy Digital Downloads (and the Software Licensing, Recurring Payments and Git Download Updater add-ons) to AI agents through the WordPress Abilities API / MCP.
- * Version:           0.1.3
+ * Version:           0.1.4
  * Requires at least: 6.9
  * Requires PHP:      7.4
- * Requires Plugins:  easy-digital-downloads
  * Author:            Groundhogg
  * License:           GPL-3.0-or-later
  * Text Domain:       edd-abilities
@@ -15,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'EDD_ABILITIES_VERSION', '0.1.3' );
+define( 'EDD_ABILITIES_VERSION', '0.1.4' );
 define( 'EDD_ABILITIES__FILE__', __FILE__ );
 define( 'EDD_ABILITIES_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -23,6 +22,11 @@ require_once EDD_ABILITIES_PATH . 'includes/autoloader.php';
 
 \EDD_Abilities\Autoloader::register( 'EDD_Abilities', EDD_ABILITIES_PATH . 'includes/' );
 
+// Deliberately no "Requires Plugins: easy-digital-downloads" header. WordPress matches that by slug,
+// and EDD Pro installs as easy-digital-downloads-pro (not on wordpress.org), so the dependency could
+// never be satisfied and WordPress would show a "missing required plugin" notice. Instead we check
+// for EDD's main class below, which both the free and Pro builds define.
+//
 // EDD boots on plugins_loaded, so wait until it has had the chance to.
 add_action( 'plugins_loaded', function () {
 

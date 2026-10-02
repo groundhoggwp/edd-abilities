@@ -25,6 +25,16 @@ class Helpers_Test extends WP_UnitTestCase {
 		];
 	}
 
+	public function test_the_plugin_does_not_declare_a_slug_based_edd_dependency() {
+
+		// WordPress resolves "Requires Plugins" by slug. EDD Pro installs as easy-digital-downloads-pro
+		// (and isn't on wordpress.org), so declaring "easy-digital-downloads" makes WordPress show a
+		// "missing required plugin" notice for every Pro site. EDD is detected at runtime instead.
+		$headers = get_file_data( dirname( __DIR__, 3 ) . '/edd-abilities.php', [ 'requires_plugins' => 'Requires Plugins' ] );
+
+		$this->assertSame( '', $headers['requires_plugins'] );
+	}
+
 	public function test_every_class_in_the_plugin_is_autoloadable() {
 
 		$root  = dirname( __DIR__, 3 ) . '/includes/';
