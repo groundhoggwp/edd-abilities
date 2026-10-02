@@ -56,6 +56,35 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 		$this->assertNotEmpty( $files[0]['file'] );
 	}
 
+	public function test_releasing_a_version_never_reuses_a_stale_version_baked_into_the_stored_file_name() {
+
+		// Reproduces a live bug: a product whose file name was last set to "repo-1.2.zip" (either by
+		// a prior release or by hand) kept being re-saved under that exact name forever, because the
+		// git updater only auto-names the file when given an empty string - handed a name, even a
+		// stale one, it uses it verbatim. The version, changelog and fetched *content* all updated
+		// correctly; only the file name (and so its URL) stayed wrong.
+		$id = $this->create_git_product( [ 'repo' => 'acme/widget' ] );
+
+		$files              = get_post_meta( $id, 'edd_download_files', true );
+		$files[0]['name']   = 'widget-1.2.zip';
+		update_post_meta( $id, 'edd_download_files', $files );
+
+		$this->mock_zipball( 'widget' );
+
+		$result = $this->run_ok( 'edd/release-product-version', [
+			'id'        => $id,
+			'version'   => '1.3',
+			'changelog' => '<h4>1.3</h4>',
+		] );
+
+		$this->assertSame( 'widget-1.3.zip', $result['file_name'] );
+		$this->assertStringContainsString( 'widget-1.3.zip', $result['file'] );
+		$this->assertStringNotContainsString( '1.2', $result['file_name'] );
+
+		$stored_files = get_post_meta( $id, 'edd_download_files', true );
+		$this->assertSame( 'widget-1.3.zip', $stored_files[0]['name'], 'The stale name must not be carried forward to the next release either.' );
+	}
+
 	public function test_releasing_the_first_version_needs_no_existing_changelog() {
 
 		$id = $this->create_git_product();

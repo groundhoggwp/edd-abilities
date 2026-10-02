@@ -148,6 +148,15 @@ class Release_Product_Version extends Ability {
 		$updater->process_file->errors = [];
 		$updater->process_file->condition = $file['condition'] ?? 'all';
 
+		// Always derive a fresh, version-stamped file name rather than reusing whatever name is
+		// already stored. The git updater only auto-names the file when given an empty string - if
+		// it's handed a name it uses it verbatim, version or no version - so blindly passing through
+		// $file['name'] would keep re-saving the *previous* release's name forever (confirmed live:
+		// shipping 1.3 over a product whose stored name was "repo-1.2.zip" produced a correctly
+		// updated version, changelog and file *content*, but the output file was still named and
+		// linked as "repo-1.2.zip").
+		$file_name = sanitize_file_name( $repo_name . '-' . $version . '.zip' );
+
 		try {
 			$new_zip = $updater->process_file->process(
 				$id,
@@ -155,7 +164,7 @@ class Release_Product_Version extends Ability {
 				$repo_url,
 				$file_key,
 				$file['git_folder_name'] ?? '',
-				$file['name'] ?? '',
+				$file_name,
 				$repo_owner,
 				$repo_name,
 				$provider

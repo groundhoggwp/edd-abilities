@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Abilities for Easy Digital Downloads
  * Description:       Exposes Easy Digital Downloads (and the Software Licensing, Recurring Payments and Git Download Updater add-ons) to AI agents through the WordPress Abilities API / MCP.
- * Version:           0.1.1
+ * Version:           0.1.2
  * Requires at least: 6.9
  * Requires PHP:      7.4
  * Requires Plugins:  easy-digital-downloads
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'EDD_ABILITIES_VERSION', '0.1.1' );
+define( 'EDD_ABILITIES_VERSION', '0.1.2' );
 define( 'EDD_ABILITIES__FILE__', __FILE__ );
 define( 'EDD_ABILITIES_PATH', plugin_dir_path( __FILE__ ) );
 
