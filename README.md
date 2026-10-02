@@ -16,11 +16,19 @@ and any Abilities API consumer can use them.
 
 - WordPress 6.9 or later (the Abilities API is in core from 6.9)
 - PHP 7.4 or later
-- Easy Digital Downloads 3.x, free or Pro (developed and tested against Pro 3.5.3). The plugin checks
+- Easy Digital Downloads 3.x, free or Pro (current tests run against 3.7.1). The plugin checks
   for EDD at runtime rather than declaring a `Requires Plugins` dependency, because WordPress matches
   that by slug and can't be satisfied by the Pro build.
 - Optional: EDD Software Licensing (tested on 3.9.1), EDD Recurring Payments (tested on 2.13.9),
-  EDD Git Download Updater (tested on 1.3.1)
+  EDD Git Download Updater (tested on 1.3.5, which needs EDD 3.6.2+)
+
+### EDD's own abilities
+
+EDD 3.7.1 and later register abilities of their own (named like `edd/order-read` and `edd/customer-update`,
+and hidden from MCP unless the store owner opts in under Downloads > Tools > AI). They sit alongside these
+and don't overlap by name, with one history worth knowing: EDD's command palette registers
+`edd/search-customers`, which used to shadow this plugin's ability of the same name (WordPress keeps the first
+registration), so it never appeared. This plugin's version is now `edd/list-customers`.
 
 ## Installation
 
@@ -169,7 +177,7 @@ that remaps who can see or edit customers is respected. By default that is `view
 
 | Ability | Type | What it does |
 |---|---|---|
-| `edd/search-customers` | Read | Search customers by name or email; filter by status, user, date; sort; page. |
+| `edd/list-customers` | Read | Search customers by name or email; filter by status, user, date; sort; page. |
 | `edd/get-customer` | Read | One customer by ID or any of their email addresses, with all emails and recent orders. |
 | `edd/create-customer` | Write | Create a customer. Refuses a duplicate email. |
 | `edd/update-customer` | Write | Change name, status or linked user, or attach an extra email. Refuses an email that belongs to someone else. |

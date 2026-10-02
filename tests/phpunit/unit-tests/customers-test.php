@@ -2,39 +2,39 @@
 
 class Customers_Test extends EDD_Abilities_Test_Case {
 
-	public function test_search_customers_by_name_and_exact_email() {
+	public function test_list_customers_by_name_and_exact_email() {
 
 		$alice = $this->create_customer( [ 'name' => 'Alice Zebra', 'email' => 'alice@example.com' ] );
 		$bob   = $this->create_customer( [ 'name' => 'Bob Yak', 'email' => 'bob@example.com' ] );
 
-		$by_name = $this->run_ok( 'edd/search-customers', [ 'search' => 'Zebra' ] );
+		$by_name = $this->run_ok( 'edd/list-customers', [ 'search' => 'Zebra' ] );
 		$this->assertSame( [ $alice ], wp_list_pluck( $by_name['customers'], 'id' ) );
 		$this->assertSame( 1, $by_name['total_items'] );
 
-		$by_email = $this->run_ok( 'edd/search-customers', [ 'email' => 'bob@example.com' ] );
+		$by_email = $this->run_ok( 'edd/list-customers', [ 'email' => 'bob@example.com' ] );
 		$this->assertSame( [ $bob ], wp_list_pluck( $by_email['customers'], 'id' ) );
 	}
 
-	public function test_search_customers_pages_and_reports_the_total() {
+	public function test_list_customers_pages_and_reports_the_total() {
 
 		for ( $i = 0; $i < 4; $i++ ) {
 			$this->create_customer();
 		}
 
-		$page = $this->run_ok( 'edd/search-customers', [ 'limit' => 3 ] );
+		$page = $this->run_ok( 'edd/list-customers', [ 'limit' => 3 ] );
 		$this->assertCount( 3, $page['customers'] );
 		$this->assertSame( 4, $page['total_items'] );
 
-		$rest = $this->run_ok( 'edd/search-customers', [ 'limit' => 3, 'offset' => 3 ] );
+		$rest = $this->run_ok( 'edd/list-customers', [ 'limit' => 3, 'offset' => 3 ] );
 		$this->assertCount( 1, $rest['customers'] );
 	}
 
-	public function test_search_customers_status_filter() {
+	public function test_list_customers_status_filter() {
 
 		$active   = $this->create_customer();
 		$disabled = $this->create_customer( [ 'status' => 'disabled' ] );
 
-		$result = $this->run_ok( 'edd/search-customers', [ 'status' => 'disabled' ] );
+		$result = $this->run_ok( 'edd/list-customers', [ 'status' => 'disabled' ] );
 
 		$this->assertSame( [ $disabled ], wp_list_pluck( $result['customers'], 'id' ) );
 		$this->assertNotContains( $active, wp_list_pluck( $result['customers'], 'id' ) );

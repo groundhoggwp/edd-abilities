@@ -23,9 +23,9 @@ callback and output validation are all exercised the way an MCP client would hit
   database it can drop tables in. **Never point it at a site's real database.**
 - `yoast/phpunit-polyfills` (`WP_TESTS_PHPUNIT_POLYFILLS_PATH`) and PHPUnit 9.6.
 - An EDD 3.x checkout. `EDD_DIR` points at it; it defaults to a sibling `../easy-digital-downloads`.
-  The tests were written and run against **EDD 3.5.3**; the older 3.0.x checkout is not supported.
+  The tests currently run against **EDD 3.7.1**; Git Download Updater 1.3.5 needs EDD 3.6.2+, so the older 3.0.x and 3.5.x checkouts are not supported.
 - Optional: `EDD_SL_DIR` (Software Licensing, tested on 3.9.1), `EDD_RECURRING_DIR` (Recurring Payments,
-  tested on 2.13.9) and `EDD_GIT_DIR` (Git Download Updater, tested on 1.3.1). Each defaults to a sibling
+  tested on 2.13.9) and `EDD_GIT_DIR` (Git Download Updater, tested on 1.3.5). Each defaults to a sibling
   folder. If one is missing its test class skips itself, and `registry-test.php` instead asserts that its
   abilities are **not** registered. The add-ons' tables are installed through EDD's component registry,
   so no extra setup is needed.

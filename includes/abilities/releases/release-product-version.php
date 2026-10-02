@@ -177,6 +177,37 @@ class Release_Product_Version extends Ability {
 			);
 		}
 
+		// Save the new file and version ourselves. Git Download Updater 1.3.5+ no longer does: its
+		// process() fetches and repackages the zip but only hands the result back, leaving the admin
+		// form's Update button to save it (confirmed live: the zip was written and the changelog
+		// saved, but the product still said 1.2). Older versions saved it themselves; writing the
+		// same values again is harmless, so this works with either.
+		$sl_version = (string) $updater->process_file->sl_version;
+
+		update_post_meta( $id, 'edd_download_files', [
+			$file_key => [
+				'git_version'     => $version,
+				'git_url'         => $repo_url,
+				'git_folder_name' => $file['git_folder_name'] ?? '',
+				'git_file_asset'  => (string) $updater->process_file->url,
+				'file'            => (string) $new_zip['url'],
+				'name'            => $updater->process_file->file_name ?: basename( $new_zip['path'] ),
+				'condition'       => $file['condition'] ?? 'all',
+				'attachment_id'   => 0,
+			],
+		] );
+
+		update_post_meta( $id, '_edd_sl_version', $sl_version );
+
+		// Read it back. Something else on a site can block or undo meta writes, and reporting success
+		// for a release that didn't take is worse than an error - and we stop before touching the
+		// changelog so it can't announce a version the product doesn't have.
+		$saved_files = get_post_meta( $id, 'edd_download_files', true );
+
+		if ( ( $saved_files[ $file_key ]['file'] ?? '' ) !== (string) $new_zip['url'] || (string) get_post_meta( $id, '_edd_sl_version', true ) !== $sl_version ) {
+			return new \WP_Error( 'edd_abilities_not_saved', __( 'The new version was fetched and packaged, but the product\'s file and version did not save - something on this site is blocking or reverting changes to them. The changelog was not changed.', 'edd-abilities' ), [ 'file' => $new_zip['url'] ] );
+		}
+
 		$existing          = stripslashes( (string) get_post_meta( $id, '_edd_sl_changelog', true ) );
 		$updated_changelog = $existing;
 
@@ -190,7 +221,7 @@ class Release_Product_Version extends Ability {
 			'id'           => $id,
 			'product_name' => get_the_title( $id ),
 			'version'      => $version,
-			'sl_version'   => (string) $updater->process_file->sl_version,
+			'sl_version'   => $sl_version,
 			'provider'     => $provider_id,
 			'repo'         => $repo_owner . '/' . $repo_name,
 			'file'         => (string) $new_zip['url'],

@@ -16,7 +16,7 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 		'edd/update-order-status'  => 'edd-orders',
 		'edd/refund-order'         => 'edd-orders',
 		'edd/add-order-note'       => 'edd-orders',
-		'edd/search-customers'     => 'edd-customers',
+		'edd/list-customers'     => 'edd-customers',
 		'edd/get-customer'         => 'edd-customers',
 		'edd/create-customer'      => 'edd-customers',
 		'edd/update-customer'      => 'edd-customers',
@@ -136,7 +136,7 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 
 		foreach ( $this->expected_abilities() as $name ) {
 			$annotations = wp_get_ability( $name )->get_meta()['annotations'];
-			$is_read     = 0 === strpos( $name, 'edd/list-' ) || 0 === strpos( $name, 'edd/get-' ) || 'edd/search-customers' === $name;
+			$is_read     = 0 === strpos( $name, 'edd/list-' ) || 0 === strpos( $name, 'edd/get-' );
 
 			$this->assertSame( $is_read, $annotations['readonly'], "$name readonly annotation" );
 			$this->assertSame( in_array( $name, [ 'edd/refund-order', 'edd/cancel-subscription', 'edd/release-product-version' ], true ), $annotations['destructive'], "$name destructive annotation" );
@@ -164,7 +164,7 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 		$analyst = $this->create_shop_user( [ 'view_shop_reports' ] );
 		wp_set_current_user( $analyst );
 
-		$this->assertTrue( wp_get_ability( 'edd/search-customers' )->check_permissions( [] ) );
+		$this->assertTrue( wp_get_ability( 'edd/list-customers' )->check_permissions( [] ) );
 		$this->assertNotTrue( wp_get_ability( 'edd/create-customer' )->check_permissions( [] ) );
 
 		// Stores can remap the roles through EDD's filters; the abilities must follow.
@@ -172,7 +172,7 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 			return 'some_custom_cap';
 		} );
 
-		$this->assertNotTrue( wp_get_ability( 'edd/search-customers' )->check_permissions( [] ) );
+		$this->assertNotTrue( wp_get_ability( 'edd/list-customers' )->check_permissions( [] ) );
 	}
 
 	public function test_registering_after_the_api_hooks_finished_is_reported_not_silently_dropped() {

@@ -85,6 +85,55 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 		$this->assertSame( 'widget-1.3.zip', $stored_files[0]['name'], 'The stale name must not be carried forward to the next release either.' );
 	}
 
+	public function test_the_new_file_and_version_are_actually_saved_to_the_product() {
+
+		// Git Download Updater 1.3.5+ fetches and repackages the zip but no longer saves it to the
+		// product (the admin form's Update button does that), so the ability has to. Reading these back
+		// through the database, not from the ability's own response, is the point.
+		$id = $this->create_git_product( [ 'repo' => 'acme/widget' ] );
+		$this->mock_zipball( 'widget' );
+
+		$result = $this->run_ok( 'edd/release-product-version', [ 'id' => $id, 'version' => 'v2.0.0', 'changelog' => '<h4>2.0.0</h4>' ] );
+
+		wp_cache_flush();
+
+		$files = get_post_meta( $id, 'edd_download_files', true );
+
+		$this->assertSame( '2.0.0', get_post_meta( $id, '_edd_sl_version', true ) );
+		$this->assertSame( 'v2.0.0', $files[0]['git_version'] );
+		$this->assertSame( $result['file'], $files[0]['file'] );
+		$this->assertSame( 'widget-v2.0.0.zip', $files[0]['name'] );
+		$this->assertSame( 'https://github.com/acme/widget', $files[0]['git_url'] );
+		$this->assertSame( 'all', $files[0]['condition'] );
+	}
+
+	/**
+	 * @dataProvider blockable_meta_keys
+	 */
+	public function test_a_release_that_cannot_be_saved_is_an_error_and_leaves_the_changelog_alone( string $blocked_key ) {
+
+		$id = $this->create_git_product( [ 'repo' => 'acme/widget' ] );
+		update_post_meta( $id, '_edd_sl_changelog', addslashes( '<h4>1.0.0</h4>' ) );
+		$this->mock_zipball( 'widget' );
+
+		// Something on the site (a security plugin, a snippet) refuses writes to this key.
+		add_filter( 'update_post_metadata', function ( $check, $object_id, $meta_key ) use ( $blocked_key ) {
+			return $meta_key === $blocked_key ? false : $check;
+		}, 10, 3 );
+
+		$result = $this->run_ability( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.1.0', 'changelog' => '<h4>1.1.0</h4>' ] );
+
+		$this->assertAbilityError( 'edd_abilities_not_saved', $result );
+		$this->assertSame( '<h4>1.0.0</h4>', stripslashes( get_post_meta( $id, '_edd_sl_changelog', true ) ), 'The changelog must not announce a version that did not save.' );
+	}
+
+	public function blockable_meta_keys(): array {
+		return [
+			'the version'  => [ '_edd_sl_version' ],
+			'the file'     => [ 'edd_download_files' ],
+		];
+	}
+
 	public function test_releasing_the_first_version_needs_no_existing_changelog() {
 
 		$id = $this->create_git_product();

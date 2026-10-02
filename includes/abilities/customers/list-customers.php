@@ -14,11 +14,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Lists/searches EDD customers (Downloads > Customers in the admin).
  */
-class Search_Customers extends Ability {
+class List_Customers extends Ability {
 
 	use Checks_Customer_Caps;
 
-	protected const NAME     = 'edd/search-customers';
+	protected const NAME     = 'edd/list-customers';
 	protected const CATEGORY = 'edd-customers';
 
 	protected const READONLY   = true;
@@ -27,7 +27,7 @@ class Search_Customers extends Ability {
 	protected function get_args(): array {
 
 		return [
-			'label'       => __( 'Search Customers', 'edd-abilities' ),
+			'label'       => __( 'List Customers', 'edd-abilities' ),
 			'description' => __( 'List or search Easy Digital Downloads customers by name or email, newest first by default.', 'edd-abilities' ),
 
 			'input_schema' => [

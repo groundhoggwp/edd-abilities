@@ -4,7 +4,7 @@ namespace EDD_Abilities;
 
 use EDD_Abilities\Abilities\Customers\Create_Customer;
 use EDD_Abilities\Abilities\Customers\Get_Customer;
-use EDD_Abilities\Abilities\Customers\Search_Customers;
+use EDD_Abilities\Abilities\Customers\List_Customers;
 use EDD_Abilities\Abilities\Customers\Update_Customer;
 use EDD_Abilities\Abilities\Discounts\Create_Discount;
 use EDD_Abilities\Abilities\Discounts\Get_Discount;
@@ -207,7 +207,7 @@ class Registry {
 			Refund_Order::class,
 			Add_Order_Note::class,
 			// Customers
-			Search_Customers::class,
+			List_Customers::class,
 			Get_Customer::class,
 			Create_Customer::class,
 			Update_Customer::class,
