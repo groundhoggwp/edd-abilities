@@ -7,13 +7,13 @@ class Subscriptions_Test extends EDD_Abilities_Recurring_Test_Case {
 
 	public function test_the_subscription_abilities_are_registered() {
 
-		foreach ( [ 'edd/list-subscriptions', 'edd/get-subscription', 'edd/cancel-subscription' ] as $name ) {
+		foreach ( [ 'edd-alt/list-subscriptions', 'edd-alt/get-subscription', 'edd-alt/cancel-subscription' ] as $name ) {
 			$this->assertTrue( wp_has_ability( $name ), "$name should be registered when Recurring is active" );
 		}
 	}
 
 	/* ---------------------------------------------------------------------------------------- */
-	/* edd/get-subscription                                                                     */
+	/* edd-alt/get-subscription                                                                     */
 	/* ---------------------------------------------------------------------------------------- */
 
 	public function test_get_subscription() {
@@ -29,7 +29,7 @@ class Subscriptions_Test extends EDD_Abilities_Recurring_Test_Case {
 			'profile_id'       => 'sub_abc123',
 		] );
 
-		$result = $this->run_ok( 'edd/get-subscription', [ 'id' => $sub->id ] );
+		$result = $this->run_ok( 'edd-alt/get-subscription', [ 'id' => $sub->id ] );
 
 		$this->assertSame( (int) $sub->id, $result['id'] );
 		$this->assertSame( 'active', $result['status'] );
@@ -52,16 +52,16 @@ class Subscriptions_Test extends EDD_Abilities_Recurring_Test_Case {
 
 		$sub = $this->create_subscription( [ 'price_id' => 2 ] );
 
-		$this->assertSame( 2, $this->run_ok( 'edd/get-subscription', [ 'id' => $sub->id ] )['price_id'] );
+		$this->assertSame( 2, $this->run_ok( 'edd-alt/get-subscription', [ 'id' => $sub->id ] )['price_id'] );
 	}
 
 	public function test_get_subscription_for_an_unknown_id_is_a_clean_error() {
 
-		$this->assertAbilityError( 'edd_abilities_not_found', $this->run_ability( 'edd/get-subscription', [ 'id' => 999999 ] ) );
+		$this->assertAbilityError( 'edd_abilities_not_found', $this->run_ability( 'edd-alt/get-subscription', [ 'id' => 999999 ] ) );
 	}
 
 	/* ---------------------------------------------------------------------------------------- */
-	/* edd/list-subscriptions                                                                   */
+	/* edd-alt/list-subscriptions                                                                   */
 	/* ---------------------------------------------------------------------------------------- */
 
 	public function test_list_subscriptions_returns_total_separately_from_the_page() {
@@ -70,11 +70,11 @@ class Subscriptions_Test extends EDD_Abilities_Recurring_Test_Case {
 			$this->create_subscription();
 		}
 
-		$page = $this->run_ok( 'edd/list-subscriptions', [ 'limit' => 3 ] );
+		$page = $this->run_ok( 'edd-alt/list-subscriptions', [ 'limit' => 3 ] );
 		$this->assertCount( 3, $page['subscriptions'] );
 		$this->assertSame( 4, $page['total_items'] );
 
-		$rest = $this->run_ok( 'edd/list-subscriptions', [ 'limit' => 3, 'offset' => 3 ] );
+		$rest = $this->run_ok( 'edd-alt/list-subscriptions', [ 'limit' => 3, 'offset' => 3 ] );
 		$this->assertCount( 1, $rest['subscriptions'] );
 		$this->assertSame( 4, $rest['total_items'] );
 	}
@@ -91,15 +91,15 @@ class Subscriptions_Test extends EDD_Abilities_Recurring_Test_Case {
 			return wp_list_pluck( $result['subscriptions'], 'id' );
 		};
 
-		$by_product = $this->run_ok( 'edd/list-subscriptions', [ 'product_id' => $product ] );
+		$by_product = $this->run_ok( 'edd-alt/list-subscriptions', [ 'product_id' => $product ] );
 		$this->assertSame( [ (int) $mine->id ], $ids( $by_product ) );
 		$this->assertSame( 1, $by_product['total_items'] );
 
-		$by_customer = $this->run_ok( 'edd/list-subscriptions', [ 'customer_id' => $customer ] );
+		$by_customer = $this->run_ok( 'edd-alt/list-subscriptions', [ 'customer_id' => $customer ] );
 		$this->assertSame( [ (int) $mine->id ], $ids( $by_customer ) );
 		$this->assertSame( 1, $by_customer['total_items'] );
 
-		$by_order = $this->run_ok( 'edd/list-subscriptions', [ 'order_id' => $other->parent_payment_id ] );
+		$by_order = $this->run_ok( 'edd-alt/list-subscriptions', [ 'order_id' => $other->parent_payment_id ] );
 		$this->assertSame( [ (int) $other->id ], $ids( $by_order ) );
 		$this->assertSame( 1, $by_order['total_items'] );
 	}
@@ -111,7 +111,7 @@ class Subscriptions_Test extends EDD_Abilities_Recurring_Test_Case {
 		$expired   = $this->create_subscription( [ 'status' => 'expired', 'expiration' => '2020-01-01 00:00:00' ] );
 
 		$ids = function ( $statuses ) {
-			$result = $this->run_ok( 'edd/list-subscriptions', [ 'status' => $statuses ] );
+			$result = $this->run_ok( 'edd-alt/list-subscriptions', [ 'status' => $statuses ] );
 			$this->assertSame( count( $result['subscriptions'] ), $result['total_items'], 'total_items must agree with the list for ' . implode( ',', $statuses ) );
 			return wp_list_pluck( $result['subscriptions'], 'id' );
 		};
@@ -126,12 +126,12 @@ class Subscriptions_Test extends EDD_Abilities_Recurring_Test_Case {
 		$one = $this->create_subscription( [ 'profile_id' => 'sub_findme' ] );
 		$two = $this->create_subscription( [ 'profile_id' => 'sub_other' ] );
 
-		$by_profile = $this->run_ok( 'edd/list-subscriptions', [ 'search' => 'profile_id:sub_findme' ] );
+		$by_profile = $this->run_ok( 'edd-alt/list-subscriptions', [ 'search' => 'profile_id:sub_findme' ] );
 		$this->assertSame( [ (int) $one->id ], wp_list_pluck( $by_profile['subscriptions'], 'id' ) );
 		$this->assertSame( 1, $by_profile['total_items'] );
 
 		$email    = edd_get_customer( $two->customer_id )->email;
-		$by_email = $this->run_ok( 'edd/list-subscriptions', [ 'search' => $email ] );
+		$by_email = $this->run_ok( 'edd-alt/list-subscriptions', [ 'search' => $email ] );
 		$this->assertSame( [ (int) $two->id ], wp_list_pluck( $by_email['subscriptions'], 'id' ) );
 	}
 
@@ -140,12 +140,12 @@ class Subscriptions_Test extends EDD_Abilities_Recurring_Test_Case {
 		$first  = $this->create_subscription();
 		$second = $this->create_subscription();
 
-		$this->assertSame( [ (int) $second->id, (int) $first->id ], wp_list_pluck( $this->run_ok( 'edd/list-subscriptions' )['subscriptions'], 'id' ) );
-		$this->assertSame( [ (int) $first->id, (int) $second->id ], wp_list_pluck( $this->run_ok( 'edd/list-subscriptions', [ 'order' => 'ASC' ] )['subscriptions'], 'id' ) );
+		$this->assertSame( [ (int) $second->id, (int) $first->id ], wp_list_pluck( $this->run_ok( 'edd-alt/list-subscriptions' )['subscriptions'], 'id' ) );
+		$this->assertSame( [ (int) $first->id, (int) $second->id ], wp_list_pluck( $this->run_ok( 'edd-alt/list-subscriptions', [ 'order' => 'ASC' ] )['subscriptions'], 'id' ) );
 	}
 
 	/* ---------------------------------------------------------------------------------------- */
-	/* edd/cancel-subscription                                                                  */
+	/* edd-alt/cancel-subscription                                                                  */
 	/* ---------------------------------------------------------------------------------------- */
 
 	public function test_cancel_is_refused_when_the_gateway_cannot_cancel() {
@@ -155,9 +155,9 @@ class Subscriptions_Test extends EDD_Abilities_Recurring_Test_Case {
 
 		$sub = $this->create_subscription();
 
-		$this->assertFalse( $this->run_ok( 'edd/get-subscription', [ 'id' => $sub->id ] )['can_cancel'] );
+		$this->assertFalse( $this->run_ok( 'edd-alt/get-subscription', [ 'id' => $sub->id ] )['can_cancel'] );
 
-		$this->assertAbilityError( 'edd_abilities_cannot_cancel', $this->run_ability( 'edd/cancel-subscription', [ 'id' => $sub->id ] ) );
+		$this->assertAbilityError( 'edd_abilities_cannot_cancel', $this->run_ability( 'edd-alt/cancel-subscription', [ 'id' => $sub->id ] ) );
 
 		$this->assertSame( 'active', ( new EDD_Subscription( $sub->id ) )->status, 'A refused cancel must not change anything.' );
 	}
@@ -172,7 +172,7 @@ class Subscriptions_Test extends EDD_Abilities_Recurring_Test_Case {
 			$fired++;
 		} );
 
-		$result = $this->run_ok( 'edd/cancel-subscription', [ 'id' => $sub->id ] );
+		$result = $this->run_ok( 'edd-alt/cancel-subscription', [ 'id' => $sub->id ] );
 
 		$this->assertSame( 'cancelled', $result['status'] );
 		$this->assertSame( 'cancelled', ( new EDD_Subscription( $sub->id ) )->status );
@@ -189,8 +189,8 @@ class Subscriptions_Test extends EDD_Abilities_Recurring_Test_Case {
 			$fired++;
 		} );
 
-		$this->run_ok( 'edd/cancel-subscription', [ 'id' => $sub->id ] );
-		$again = $this->run_ok( 'edd/cancel-subscription', [ 'id' => $sub->id ] );
+		$this->run_ok( 'edd-alt/cancel-subscription', [ 'id' => $sub->id ] );
+		$again = $this->run_ok( 'edd-alt/cancel-subscription', [ 'id' => $sub->id ] );
 
 		$this->assertSame( 'cancelled', $again['status'] );
 		$this->assertSame( 1, $fired );
@@ -200,14 +200,14 @@ class Subscriptions_Test extends EDD_Abilities_Recurring_Test_Case {
 
 		$sub = $this->create_subscription( [ 'status' => 'cancelled' ] );
 
-		$this->assertSame( 'cancelled', $this->run_ok( 'edd/cancel-subscription', [ 'id' => $sub->id ] )['status'] );
+		$this->assertSame( 'cancelled', $this->run_ok( 'edd-alt/cancel-subscription', [ 'id' => $sub->id ] )['status'] );
 	}
 
 	public function test_cancel_rejects_unknown_ids() {
 
 		add_filter( 'edd_subscription_can_cancel', '__return_true', 99 );
 
-		$this->assertAbilityError( 'edd_abilities_not_found', $this->run_ability( 'edd/cancel-subscription', [ 'id' => 999999 ] ) );
+		$this->assertAbilityError( 'edd_abilities_not_found', $this->run_ability( 'edd-alt/cancel-subscription', [ 'id' => 999999 ] ) );
 	}
 
 	/* ---------------------------------------------------------------------------------------- */
@@ -223,9 +223,9 @@ class Subscriptions_Test extends EDD_Abilities_Recurring_Test_Case {
 		wp_set_current_user( $this->create_shop_user( [ 'view_shop_reports', 'manage_licenses' ] ) );
 
 		foreach ( [
-			[ 'edd/list-subscriptions', [] ],
-			[ 'edd/get-subscription', [ 'id' => $sub->id ] ],
-			[ 'edd/cancel-subscription', [ 'id' => $sub->id ] ],
+			[ 'edd-alt/list-subscriptions', [] ],
+			[ 'edd-alt/get-subscription', [ 'id' => $sub->id ] ],
+			[ 'edd-alt/cancel-subscription', [ 'id' => $sub->id ] ],
 		] as $call ) {
 			$this->assertAbilityError( 'ability_invalid_permissions', $this->run_ability( $call[0], $call[1] ) );
 		}

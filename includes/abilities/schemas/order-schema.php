@@ -38,7 +38,7 @@ class Order_Schema extends Schema {
 				'tax'            => [ 'type' => 'number' ],
 				'total'          => [ 'type' => 'number' ],
 				'transaction_id' => [ 'type' => 'string', 'description' => __( 'The payment gateway\'s transaction ID.', 'edd-abilities' ) ],
-				'is_refundable'  => [ 'type' => 'boolean', 'description' => __( 'Whether edd/refund-order would currently accept this order.', 'edd-abilities' ) ],
+				'is_refundable'  => [ 'type' => 'boolean', 'description' => __( 'Whether edd-alt/refund-order would currently accept this order.', 'edd-abilities' ) ],
 				'date_created'   => self::datetime_schema(),
 				'date_completed' => self::datetime_schema(),
 				'items'          => [

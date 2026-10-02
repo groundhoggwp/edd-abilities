@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Get_Store_Stats extends Ability {
 
-	protected const NAME       = 'edd/get-store-stats';
-	protected const CATEGORY   = 'edd-reports';
+	protected const NAME       = 'edd-alt/get-store-stats';
+	protected const CATEGORY   = 'edd-alt-reports';
 	protected const CAPABILITY = 'view_shop_reports';
 
 	protected const READONLY   = true;

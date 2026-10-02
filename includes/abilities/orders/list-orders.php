@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class List_Orders extends Ability {
 
-	protected const NAME       = 'edd/list-orders';
-	protected const CATEGORY   = 'edd-orders';
+	protected const NAME       = 'edd-alt/list-orders';
+	protected const CATEGORY   = 'edd-alt-orders';
 	protected const CAPABILITY = 'edit_shop_payments';
 
 	protected const READONLY   = true;
@@ -26,7 +26,7 @@ class List_Orders extends Ability {
 
 		return [
 			'label'       => __( 'List Orders', 'edd-abilities' ),
-			'description' => __( 'List or search Easy Digital Downloads orders, newest first by default. Filter by status, customer, product, gateway or date. Use edd/get-order for a single order in full.', 'edd-abilities' ),
+			'description' => __( 'List or search Easy Digital Downloads orders, newest first by default. Filter by status, customer, product, gateway or date. Use edd-alt/get-order for a single order in full.', 'edd-abilities' ),
 
 			'input_schema' => [
 				'type'                 => 'object',

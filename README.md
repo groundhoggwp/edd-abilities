@@ -9,6 +9,9 @@ connected WordPress user has in the admin.
 It also covers the **Software Licensing**, **Recurring Payments** and **Git Download Updater** add-ons.
 Their abilities register only when the add-on is active.
 
+These are **unofficial alternatives** to the abilities EDD itself ships, which is why every ability is named
+`edd-alt/...` rather than `edd/...` (see [EDD's own abilities](#edds-own-abilities)).
+
 The plugin is standalone. It does not depend on Groundhogg or on any MCP plugin; it registers abilities
 and any Abilities API consumer can use them.
 
@@ -25,10 +28,11 @@ and any Abilities API consumer can use them.
 ### EDD's own abilities
 
 EDD 3.7.1 and later register abilities of their own (named like `edd/order-read` and `edd/customer-update`,
-and hidden from MCP unless the store owner opts in under Downloads > Tools > AI). They sit alongside these
-and don't overlap by name, with one history worth knowing: EDD's command palette registers
-`edd/search-customers`, which used to shadow this plugin's ability of the same name (WordPress keeps the first
-registration), so it never appeared. This plugin's version is now `edd/list-customers`.
+hidden from MCP unless the store owner opts in under Downloads > Tools > AI). Those are EDD's official ones.
+Everything in this plugin is an **alternative**, not an official EDD ability, so every name uses the
+`edd-alt/` prefix and every category starts `edd-alt-`. That keeps the two sets side by side without
+clashing: WordPress keeps only the first registration of a name, and EDD's own command palette already
+claimed `edd/search-customers`, which silently stopped this plugin's version of it from registering.
 
 ## Installation
 
@@ -62,9 +66,9 @@ tools the adapter provides:
 
 | Tool | Use |
 |---|---|
-| `mcp-adapter-discover-abilities` | List the abilities the connected user can see, e.g. everything under `edd/` |
+| `mcp-adapter-discover-abilities` | List the abilities the connected user can see, e.g. everything under `edd-alt/` |
 | `mcp-adapter-get-ability-info` | Get one ability's description and its input/output schema |
-| `mcp-adapter-execute-ability` | Run an ability: `{ "ability_name": "edd/list-orders", "parameters": { ... } }` |
+| `mcp-adapter-execute-ability` | Run an ability: `{ "ability_name": "edd-alt/list-orders", "parameters": { ... } }` |
 
 ### 3. Connect a client
 
@@ -120,7 +124,7 @@ From a terminal, list the EDD abilities, then run one (STDIO, on a local site):
 echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"mcp-adapter-discover-abilities","arguments":{}}}' \
   | wp mcp-adapter serve --user=admin --server=mcp-adapter-default-server
 
-echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"mcp-adapter-execute-ability","arguments":{"ability_name":"edd/get-store-stats","parameters":{"range":"last_30_days"}}}}' \
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"mcp-adapter-execute-ability","arguments":{"ability_name":"edd-alt/get-store-stats","parameters":{"range":"last_30_days"}}}}' \
   | wp mcp-adapter serve --user=admin --server=mcp-adapter-default-server
 ```
 
@@ -132,7 +136,7 @@ products?" or "Refund $10 of order 1234, the second item only."
 - **The token can do what its user can do.** Connect a dedicated user with just the roles you're happy
   for an assistant to hold (for example Shop Manager) rather than an administrator.
 - **Some abilities are marked destructive** so a well-behaved client asks before running them:
-  `edd/refund-order`, `edd/cancel-subscription` and `edd/release-product-version`. None can be undone
+  `edd-alt/refund-order`, `edd-alt/cancel-subscription` and `edd-alt/release-product-version`. None can be undone
   from here.
 - **Hide an ability entirely** by removing it from the registry:
 
@@ -146,7 +150,7 @@ products?" or "Refund $10 of order 1234, the second item only."
 
   ```php
   add_filter( 'wp_register_ability_args', function ( $args, $name ) {
-      if ( 'edd/refund-order' === $name ) {
+      if ( 'edd-alt/refund-order' === $name ) {
           $args['meta']['mcp']['public'] = false;
       }
       return $args;
@@ -163,11 +167,11 @@ connected user must hold. *Read* abilities change nothing.
 
 | Ability | Type | Requires | What it does |
 |---|---|---|---|
-| `edd/list-orders` | Read | `edit_shop_payments` | List or search orders. Filter by status, customer, email, product, gateway, date range; sort; page. Sales only by default; refund orders on request. |
-| `edd/get-order` | Read | `edit_shop_payments` | One order in full: line items, billing address, applied discounts, notes, and whether it is still refundable. |
-| `edd/update-order-status` | Write | `edit_shop_payments` | Change an order's status through EDD's own status handling, so anything hooked to a status change runs. Cannot be used to refund. |
-| `edd/refund-order` | **Destructive** | `edit_shop_payments` | Full refund, or a **partial refund** of chosen items by quantity and amount (plus tax). A partial refund never refunds fees or credits. EDD's own validator rejects over-refunds. |
-| `edd/add-order-note` | Write | `edit_shop_payments` | Add a private admin note to an order. |
+| `edd-alt/list-orders` | Read | `edit_shop_payments` | List or search orders. Filter by status, customer, email, product, gateway, date range; sort; page. Sales only by default; refund orders on request. |
+| `edd-alt/get-order` | Read | `edit_shop_payments` | One order in full: line items, billing address, applied discounts, notes, and whether it is still refundable. |
+| `edd-alt/update-order-status` | Write | `edit_shop_payments` | Change an order's status through EDD's own status handling, so anything hooked to a status change runs. Cannot be used to refund. |
+| `edd-alt/refund-order` | **Destructive** | `edit_shop_payments` | Full refund, or a **partial refund** of chosen items by quantity and amount (plus tax). A partial refund never refunds fees or credits. EDD's own validator rejects over-refunds. |
+| `edd-alt/add-order-note` | Write | `edit_shop_payments` | Add a private admin note to an order. |
 
 ### Customers
 
@@ -177,48 +181,48 @@ that remaps who can see or edit customers is respected. By default that is `view
 
 | Ability | Type | What it does |
 |---|---|---|
-| `edd/list-customers` | Read | Search customers by name or email; filter by status, user, date; sort; page. |
-| `edd/get-customer` | Read | One customer by ID or any of their email addresses, with all emails and recent orders. |
-| `edd/create-customer` | Write | Create a customer. Refuses a duplicate email. |
-| `edd/update-customer` | Write | Change name, status or linked user, or attach an extra email. Refuses an email that belongs to someone else. |
+| `edd-alt/list-customers` | Read | Search customers by name or email; filter by status, user, date; sort; page. |
+| `edd-alt/get-customer` | Read | One customer by ID or any of their email addresses, with all emails and recent orders. |
+| `edd-alt/create-customer` | Write | Create a customer. Refuses a duplicate email. |
+| `edd-alt/update-customer` | Write | Change name, status or linked user, or attach an extra email. Refuses an email that belongs to someone else. |
 
 ### Products
 
 | Ability | Type | Requires | What it does |
 |---|---|---|---|
-| `edd/list-products` | Read | `edit_products` | List or search products; published only by default. |
-| `edd/get-product` | Read | `edit_products` | One product with its variable price options. Sales and earnings are only included for users who also hold `view_shop_reports`. |
+| `edd-alt/list-products` | Read | `edit_products` | List or search products; published only by default. |
+| `edd-alt/get-product` | Read | `edit_products` | One product with its variable price options. Sales and earnings are only included for users who also hold `view_shop_reports`. |
 
 ### Discounts
 
 | Ability | Type | Requires | What it does |
 |---|---|---|---|
-| `edd/list-discounts` | Read | `manage_shop_discounts` | List or search discount codes; archived hidden unless asked for. |
-| `edd/get-discount` | Read | `manage_shop_discounts` | One discount by ID or code. |
-| `edd/create-discount` | Write | `manage_shop_discounts` | Create a percent or flat code with limits, minimum spend, product requirements and exclusions, and start/end dates (site timezone, stored as UTC). |
-| `edd/update-discount-status` | Write | `manage_shop_discounts` | Activate, deactivate or archive a code. |
+| `edd-alt/list-discounts` | Read | `manage_shop_discounts` | List or search discount codes; archived hidden unless asked for. |
+| `edd-alt/get-discount` | Read | `manage_shop_discounts` | One discount by ID or code. |
+| `edd-alt/create-discount` | Write | `manage_shop_discounts` | Create a percent or flat code with limits, minimum spend, product requirements and exclusions, and start/end dates (site timezone, stored as UTC). |
+| `edd-alt/update-discount-status` | Write | `manage_shop_discounts` | Activate, deactivate or archive a code. |
 
 ### Reports
 
 | Ability | Type | Requires | What it does |
 |---|---|---|---|
-| `edd/get-store-stats` | Read | `view_shop_reports` | Earnings, order count, average order value, refunds, tax, discount savings, new customers and top products for a named or custom date range. Computed by EDD's own `Stats` class so it matches Downloads > Reports. |
+| `edd-alt/get-store-stats` | Read | `view_shop_reports` | Earnings, order count, average order value, refunds, tax, discount savings, new customers and top products for a named or custom date range. Computed by EDD's own `Stats` class so it matches Downloads > Reports. |
 
 ### Software Licensing *(only when EDD Software Licensing is active)*
 
 | Ability | Type | Requires | What it does |
 |---|---|---|---|
-| `edd/list-licenses` | Read | `manage_licenses` | List licenses, filtered by key, status, product, customer or order, with free-text search. |
-| `edd/get-license` | Read | `manage_licenses` | One license by ID or key, with expiration (or lifetime) and the sites it is activated on. |
-| `edd/update-license-status` | Write | `manage_licenses` | Disable or re-enable a license. |
+| `edd-alt/list-licenses` | Read | `manage_licenses` | List licenses, filtered by key, status, product, customer or order, with free-text search. |
+| `edd-alt/get-license` | Read | `manage_licenses` | One license by ID or key, with expiration (or lifetime) and the sites it is activated on. |
+| `edd-alt/update-license-status` | Write | `manage_licenses` | Disable or re-enable a license. |
 
 ### Recurring Payments *(only when EDD Recurring Payments is active)*
 
 | Ability | Type | Requires | What it does |
 |---|---|---|---|
-| `edd/list-subscriptions` | Read | `edit_shop_payments` | List or search subscriptions by status, product, customer or originating order. |
-| `edd/get-subscription` | Read | `edit_shop_payments` | One subscription: billing period, amounts, times billed, gateway profile, expiry, and whether it can be cancelled. |
-| `edd/cancel-subscription` | **Destructive** | `edit_shop_payments` | Cancel a subscription so it stops billing (and at the gateway where supported). Only offered where EDD Recurring says the gateway allows it. |
+| `edd-alt/list-subscriptions` | Read | `edit_shop_payments` | List or search subscriptions by status, product, customer or originating order. |
+| `edd-alt/get-subscription` | Read | `edit_shop_payments` | One subscription: billing period, amounts, times billed, gateway profile, expiry, and whether it can be cancelled. |
+| `edd-alt/cancel-subscription` | **Destructive** | `edit_shop_payments` | Cancel a subscription so it stops billing (and at the gateway where supported). Only offered where EDD Recurring says the gateway allows it. |
 
 ### Releases *(only when EDD Software Licensing and the Git Download Updater are both active)*
 
@@ -229,9 +233,9 @@ the Software Licensing changelog in the same step, which the admin screen does n
 
 | Ability | Type | Requires | What it does |
 |---|---|---|---|
-| `edd/release-product-version` | **Destructive** | `edit_products` | Pull a tag from the product's connected repository, repackage it as the download (bumping the Software Licensing version), and prepend your changelog HTML to the product's changelog. |
+| `edd-alt/release-product-version` | **Destructive** | `edit_products` | Pull a tag from the product's connected repository, repackage it as the download (bumping the Software Licensing version), and prepend your changelog HTML to the product's changelog. |
 
-`edd/release-product-version` takes `id`, `version` (the exact tag to pull - it does not create one)
+`edd-alt/release-product-version` takes `id`, `version` (the exact tag to pull - it does not create one)
 and an optional `changelog` (your complete HTML entry for this release, including its own heading;
 it is prepended as-is above whatever changelog the product already has). Omit `changelog`, or leave
 it empty, to re-fetch and repackage the tag without touching the changelog at all - e.g. to
@@ -251,7 +255,7 @@ is given, prepends it again too.
 
 Not included yet: creating or editing products (beyond shipping a new git-based version), licensing
 activations and renewals, subscription changes other than cancelling, and connecting a GitHub/Bitbucket
-account or a repository to a product for the first time (`edd/release-product-version` only ships a
+account or a repository to a product for the first time (`edd-alt/release-product-version` only ships a
 version on a product that's already connected).
 
 ## Adding your own abilities

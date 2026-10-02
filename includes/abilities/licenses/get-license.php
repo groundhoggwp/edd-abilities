@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Get_License extends Ability {
 
-	protected const NAME       = 'edd/get-license';
-	protected const CATEGORY   = 'edd-licenses';
+	protected const NAME       = 'edd-alt/get-license';
+	protected const CATEGORY   = 'edd-alt-licenses';
 	protected const CAPABILITY = 'manage_licenses';
 
 	protected const READONLY   = true;

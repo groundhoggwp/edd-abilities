@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Add_Order_Note extends Ability {
 
-	protected const NAME       = 'edd/add-order-note';
-	protected const CATEGORY   = 'edd-orders';
+	protected const NAME       = 'edd-alt/add-order-note';
+	protected const CATEGORY   = 'edd-alt-orders';
 	protected const CAPABILITY = 'edit_shop_payments';
 
 	protected function get_args(): array {

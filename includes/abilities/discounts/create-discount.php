@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Create_Discount extends Ability {
 
-	protected const NAME       = 'edd/create-discount';
-	protected const CATEGORY   = 'edd-discounts';
+	protected const NAME       = 'edd-alt/create-discount';
+	protected const CATEGORY   = 'edd-alt-discounts';
 	protected const CAPABILITY = 'manage_shop_discounts';
 
 	protected function get_args(): array {

@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Cancel_Subscription extends Ability {
 
-	protected const NAME       = 'edd/cancel-subscription';
-	protected const CATEGORY   = 'edd-subscriptions';
+	protected const NAME       = 'edd-alt/cancel-subscription';
+	protected const CATEGORY   = 'edd-alt-subscriptions';
 	protected const CAPABILITY = 'edit_shop_payments';
 
 	protected const DESTRUCTIVE = true;
@@ -30,7 +30,7 @@ class Cancel_Subscription extends Ability {
 
 		return [
 			'label'       => __( 'Cancel Subscription', 'edd-abilities' ),
-			'description' => __( 'Cancel an Easy Digital Downloads Recurring Payments subscription so it stops billing. Where the gateway supports it, the subscription is cancelled at the gateway too. Cancelling cannot be undone from here. Already-cancelled subscriptions are returned unchanged; check can_cancel on edd/get-subscription for gateways that don\'t allow it.', 'edd-abilities' ),
+			'description' => __( 'Cancel an Easy Digital Downloads Recurring Payments subscription so it stops billing. Where the gateway supports it, the subscription is cancelled at the gateway too. Cancelling cannot be undone from here. Already-cancelled subscriptions are returned unchanged; check can_cancel on edd-alt/get-subscription for gateways that don\'t allow it.', 'edd-abilities' ),
 
 			'input_schema' => [
 				'type'                 => 'object',

@@ -15,8 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class List_Products extends Ability {
 
-	protected const NAME       = 'edd/list-products';
-	protected const CATEGORY   = 'edd-products';
+	protected const NAME       = 'edd-alt/list-products';
+	protected const CATEGORY   = 'edd-alt-products';
 	protected const CAPABILITY = 'edit_products';
 
 	protected const READONLY   = true;
@@ -26,7 +26,7 @@ class List_Products extends Ability {
 
 		return [
 			'label'       => __( 'List Products', 'edd-abilities' ),
-			'description' => __( 'List or search Easy Digital Downloads products. Use the returned id as product_id in edd/list-orders, edd/create-discount and similar.', 'edd-abilities' ),
+			'description' => __( 'List or search Easy Digital Downloads products. Use the returned id as product_id in edd-alt/list-orders, edd-alt/create-discount and similar.', 'edd-abilities' ),
 
 			'input_schema' => [
 				'type'                 => 'object',

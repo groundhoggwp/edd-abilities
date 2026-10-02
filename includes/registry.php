@@ -151,36 +151,36 @@ class Registry {
 	public function register_categories() {
 
 		$categories = [
-			'edd-orders'        => [
-				'label'       => __( 'EDD Orders', 'edd-abilities' ),
+			'edd-alt-orders'        => [
+				'label'       => __( 'EDD Alt Orders', 'edd-abilities' ),
 				'description' => __( 'Find, inspect, and manage Easy Digital Downloads orders.', 'edd-abilities' ),
 			],
-			'edd-customers'     => [
-				'label'       => __( 'EDD Customers', 'edd-abilities' ),
+			'edd-alt-customers'     => [
+				'label'       => __( 'EDD Alt Customers', 'edd-abilities' ),
 				'description' => __( 'Find, inspect, and manage Easy Digital Downloads customers.', 'edd-abilities' ),
 			],
-			'edd-products'      => [
-				'label'       => __( 'EDD Products', 'edd-abilities' ),
+			'edd-alt-products'      => [
+				'label'       => __( 'EDD Alt Products', 'edd-abilities' ),
 				'description' => __( 'Find and inspect Easy Digital Downloads products.', 'edd-abilities' ),
 			],
-			'edd-discounts'     => [
-				'label'       => __( 'EDD Discounts', 'edd-abilities' ),
+			'edd-alt-discounts'     => [
+				'label'       => __( 'EDD Alt Discounts', 'edd-abilities' ),
 				'description' => __( 'Find and manage Easy Digital Downloads discount codes.', 'edd-abilities' ),
 			],
-			'edd-reports'       => [
-				'label'       => __( 'EDD Reports', 'edd-abilities' ),
+			'edd-alt-reports'       => [
+				'label'       => __( 'EDD Alt Reports', 'edd-abilities' ),
 				'description' => __( 'Store-wide earnings and sales statistics.', 'edd-abilities' ),
 			],
-			'edd-licenses'      => [
-				'label'       => __( 'EDD Software Licensing', 'edd-abilities' ),
+			'edd-alt-licenses'      => [
+				'label'       => __( 'EDD Alt Software Licensing', 'edd-abilities' ),
 				'description' => __( 'Find and manage Software Licensing licenses.', 'edd-abilities' ),
 			],
-			'edd-subscriptions' => [
-				'label'       => __( 'EDD Recurring Payments', 'edd-abilities' ),
+			'edd-alt-subscriptions' => [
+				'label'       => __( 'EDD Alt Recurring Payments', 'edd-abilities' ),
 				'description' => __( 'Find and manage Recurring Payments subscriptions.', 'edd-abilities' ),
 			],
-			'edd-releases'      => [
-				'label'       => __( 'EDD Releases', 'edd-abilities' ),
+			'edd-alt-releases'      => [
+				'label'       => __( 'EDD Alt Releases', 'edd-abilities' ),
 				'description' => __( 'Ship new versions of products whose files are pulled from a connected git repository.', 'edd-abilities' ),
 			],
 		];

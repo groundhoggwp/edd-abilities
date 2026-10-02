@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Update_License_Status extends Ability {
 
-	protected const NAME       = 'edd/update-license-status';
-	protected const CATEGORY   = 'edd-licenses';
+	protected const NAME       = 'edd-alt/update-license-status';
+	protected const CATEGORY   = 'edd-alt-licenses';
 	protected const CAPABILITY = 'manage_licenses';
 
 	protected const IDEMPOTENT = true;

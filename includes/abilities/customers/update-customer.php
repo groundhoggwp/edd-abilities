@@ -17,8 +17,8 @@ class Update_Customer extends Ability {
 
 	use Checks_Customer_Caps;
 
-	protected const NAME     = 'edd/update-customer';
-	protected const CATEGORY = 'edd-customers';
+	protected const NAME     = 'edd-alt/update-customer';
+	protected const CATEGORY = 'edd-alt-customers';
 
 	protected const IDEMPOTENT = true;
 

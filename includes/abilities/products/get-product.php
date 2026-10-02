@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Get_Product extends Ability {
 
-	protected const NAME       = 'edd/get-product';
-	protected const CATEGORY   = 'edd-products';
+	protected const NAME       = 'edd-alt/get-product';
+	protected const CATEGORY   = 'edd-alt-products';
 	protected const CAPABILITY = 'edit_products';
 
 	protected const READONLY   = true;

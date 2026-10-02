@@ -11,22 +11,22 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 	 * Abilities that must exist whenever EDD itself is active.
 	 */
 	protected const CORE_ABILITIES = [
-		'edd/list-orders'          => 'edd-orders',
-		'edd/get-order'            => 'edd-orders',
-		'edd/update-order-status'  => 'edd-orders',
-		'edd/refund-order'         => 'edd-orders',
-		'edd/add-order-note'       => 'edd-orders',
-		'edd/list-customers'     => 'edd-customers',
-		'edd/get-customer'         => 'edd-customers',
-		'edd/create-customer'      => 'edd-customers',
-		'edd/update-customer'      => 'edd-customers',
-		'edd/list-products'        => 'edd-products',
-		'edd/get-product'          => 'edd-products',
-		'edd/list-discounts'       => 'edd-discounts',
-		'edd/get-discount'         => 'edd-discounts',
-		'edd/create-discount'      => 'edd-discounts',
-		'edd/update-discount-status' => 'edd-discounts',
-		'edd/get-store-stats'      => 'edd-reports',
+		'edd-alt/list-orders'          => 'edd-alt-orders',
+		'edd-alt/get-order'            => 'edd-alt-orders',
+		'edd-alt/update-order-status'  => 'edd-alt-orders',
+		'edd-alt/refund-order'         => 'edd-alt-orders',
+		'edd-alt/add-order-note'       => 'edd-alt-orders',
+		'edd-alt/list-customers'     => 'edd-alt-customers',
+		'edd-alt/get-customer'         => 'edd-alt-customers',
+		'edd-alt/create-customer'      => 'edd-alt-customers',
+		'edd-alt/update-customer'      => 'edd-alt-customers',
+		'edd-alt/list-products'        => 'edd-alt-products',
+		'edd-alt/get-product'          => 'edd-alt-products',
+		'edd-alt/list-discounts'       => 'edd-alt-discounts',
+		'edd-alt/get-discount'         => 'edd-alt-discounts',
+		'edd-alt/create-discount'      => 'edd-alt-discounts',
+		'edd-alt/update-discount-status' => 'edd-alt-discounts',
+		'edd-alt/get-store-stats'      => 'edd-alt-reports',
 	];
 
 	public function test_core_abilities_are_registered_in_their_category() {
@@ -39,19 +39,60 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 		}
 	}
 
+	public function test_every_ability_class_is_named_as_an_unofficial_alternative() {
+
+		// EDD 3.7.1+ ships official abilities under "edd/" (and WordPress keeps only the first
+		// registration of a name). Ours must stay in "edd-alt/" so they can never clash with, or be
+		// mistaken for, the official ones.
+		$classes = glob( dirname( __DIR__, 3 ) . '/includes/abilities/*/*.php' );
+		$checked = 0;
+
+		foreach ( $classes as $file ) {
+
+			$source = file_get_contents( $file );
+
+			if ( ! preg_match( "/const NAME\s*=\s*'([^']+)'/", $source, $name ) ) {
+				continue;
+			}
+
+			$this->assertStringStartsWith( 'edd-alt/', $name[1], basename( $file ) . ' must use the edd-alt/ prefix' );
+
+			if ( preg_match( "/const CATEGORY\s*=\s*'([^']+)'/", $source, $category ) ) {
+				$this->assertStringStartsWith( 'edd-alt-', $category[1], basename( $file ) . ' must use an edd-alt- category' );
+			}
+
+			$checked++;
+		}
+
+		$this->assertGreaterThanOrEqual( 23, $checked );
+	}
+
+	public function test_nothing_this_plugin_registers_uses_the_official_edd_namespace() {
+
+		foreach ( wp_get_abilities() as $ability ) {
+			if ( 0 === strpos( (string) $ability->get_category(), 'edd-alt-' ) ) {
+				$this->assertStringStartsWith( 'edd-alt/', $ability->get_name() );
+			}
+		}
+
+		foreach ( wp_get_ability_categories() as $category ) {
+			$this->assertStringNotContainsString( 'edd-orders', $category->get_slug(), 'The old, unprefixed category slugs are gone.' );
+		}
+	}
+
 	/**
 	 * Abilities that only exist when an add-on is active, with the category they belong to.
 	 */
 	protected const ADDON_ABILITIES = [
 		'software-licensing' => [
-			'edd/list-licenses'         => 'edd-licenses',
-			'edd/get-license'           => 'edd-licenses',
-			'edd/update-license-status' => 'edd-licenses',
+			'edd-alt/list-licenses'         => 'edd-alt-licenses',
+			'edd-alt/get-license'           => 'edd-alt-licenses',
+			'edd-alt/update-license-status' => 'edd-alt-licenses',
 		],
 		'recurring'          => [
-			'edd/list-subscriptions' => 'edd-subscriptions',
-			'edd/get-subscription'   => 'edd-subscriptions',
-			'edd/cancel-subscription' => 'edd-subscriptions',
+			'edd-alt/list-subscriptions' => 'edd-alt-subscriptions',
+			'edd-alt/get-subscription'   => 'edd-alt-subscriptions',
+			'edd-alt/cancel-subscription' => 'edd-alt-subscriptions',
 		],
 		// Needs Software Licensing AND the Git Download Updater, so it's kept out of the generic
 		// single-addon loop below and checked on its own in test_the_release_ability_needs_both_addons().
@@ -85,7 +126,7 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 		}
 
 		if ( $this->release_addons_are_active() ) {
-			$names[] = 'edd/release-product-version';
+			$names[] = 'edd-alt/release-product-version';
 		}
 
 		return $names;
@@ -95,10 +136,10 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 
 		$active = $this->release_addons_are_active();
 
-		$this->assertSame( $active, wp_has_ability( 'edd/release-product-version' ), $active ? 'edd/release-product-version should be registered' : 'edd/release-product-version must not register without both add-ons' );
+		$this->assertSame( $active, wp_has_ability( 'edd-alt/release-product-version' ), $active ? 'edd-alt/release-product-version should be registered' : 'edd-alt/release-product-version must not register without both add-ons' );
 
 		if ( $active ) {
-			$this->assertSame( 'edd-releases', wp_get_ability( 'edd/release-product-version' )->get_category() );
+			$this->assertSame( 'edd-alt-releases', wp_get_ability( 'edd-alt/release-product-version' )->get_category() );
 		}
 	}
 
@@ -136,10 +177,10 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 
 		foreach ( $this->expected_abilities() as $name ) {
 			$annotations = wp_get_ability( $name )->get_meta()['annotations'];
-			$is_read     = 0 === strpos( $name, 'edd/list-' ) || 0 === strpos( $name, 'edd/get-' );
+			$is_read     = 0 === strpos( $name, 'edd-alt/list-' ) || 0 === strpos( $name, 'edd-alt/get-' );
 
 			$this->assertSame( $is_read, $annotations['readonly'], "$name readonly annotation" );
-			$this->assertSame( in_array( $name, [ 'edd/refund-order', 'edd/cancel-subscription', 'edd/release-product-version' ], true ), $annotations['destructive'], "$name destructive annotation" );
+			$this->assertSame( in_array( $name, [ 'edd-alt/refund-order', 'edd-alt/cancel-subscription', 'edd-alt/release-product-version' ], true ), $annotations['destructive'], "$name destructive annotation" );
 		}
 	}
 
@@ -164,15 +205,15 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 		$analyst = $this->create_shop_user( [ 'view_shop_reports' ] );
 		wp_set_current_user( $analyst );
 
-		$this->assertTrue( wp_get_ability( 'edd/list-customers' )->check_permissions( [] ) );
-		$this->assertNotTrue( wp_get_ability( 'edd/create-customer' )->check_permissions( [] ) );
+		$this->assertTrue( wp_get_ability( 'edd-alt/list-customers' )->check_permissions( [] ) );
+		$this->assertNotTrue( wp_get_ability( 'edd-alt/create-customer' )->check_permissions( [] ) );
 
 		// Stores can remap the roles through EDD's filters; the abilities must follow.
 		add_filter( 'edd_view_customers_role', function () {
 			return 'some_custom_cap';
 		} );
 
-		$this->assertNotTrue( wp_get_ability( 'edd/list-customers' )->check_permissions( [] ) );
+		$this->assertNotTrue( wp_get_ability( 'edd-alt/list-customers' )->check_permissions( [] ) );
 	}
 
 	public function test_registering_after_the_api_hooks_finished_is_reported_not_silently_dropped() {
@@ -185,7 +226,7 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 		Registry::add_category( 'edd-test-too-late', [ 'label' => 'Too late', 'description' => 'Fixture.' ] );
 		Registry::add_ability( Late_Test_Ability::class );
 
-		$this->assertFalse( wp_has_ability( 'edd/late-test' ) );
+		$this->assertFalse( wp_has_ability( 'edd-alt/late-test' ) );
 		$this->assertFalse( wp_has_ability_category( 'edd-test-too-late' ) );
 	}
 
@@ -211,8 +252,8 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 		}
 
 		$this->assertTrue( wp_has_ability_category( 'edd-test-late' ) );
-		$this->assertTrue( wp_has_ability( 'edd/late-test' ) );
-		$this->assertSame( 'edd-test-late', wp_get_ability( 'edd/late-test' )->get_category() );
+		$this->assertTrue( wp_has_ability( 'edd-alt/late-test' ) );
+		$this->assertSame( 'edd-test-late', wp_get_ability( 'edd-alt/late-test' )->get_category() );
 	}
 }
 
@@ -221,7 +262,7 @@ class Registry_Test extends EDD_Abilities_Test_Case {
  */
 class Late_Test_Ability extends \EDD_Abilities\Abilities\Ability {
 
-	protected const NAME     = 'edd/late-test';
+	protected const NAME     = 'edd-alt/late-test';
 	protected const CATEGORY = 'edd-test-late';
 
 	protected function get_args(): array {

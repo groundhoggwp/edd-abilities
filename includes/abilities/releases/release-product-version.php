@@ -22,8 +22,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Release_Product_Version extends Ability {
 
-	protected const NAME       = 'edd/release-product-version';
-	protected const CATEGORY   = 'edd-releases';
+	protected const NAME       = 'edd-alt/release-product-version';
+	protected const CATEGORY   = 'edd-alt-releases';
 	protected const CAPABILITY = 'edit_products';
 
 	protected const DESTRUCTIVE = true;

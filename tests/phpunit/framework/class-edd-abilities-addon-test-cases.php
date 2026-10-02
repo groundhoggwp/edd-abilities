@@ -125,7 +125,7 @@ abstract class EDD_Abilities_Recurring_Test_Case extends EDD_Abilities_Test_Case
 }
 
 /**
- * Git Download Updater (paired with Software Licensing - edd/release-product-version needs both).
+ * Git Download Updater (paired with Software Licensing - edd-alt/release-product-version needs both).
  *
  * Never makes a real request to GitHub or Bitbucket. mock_zipball()/mock_zipball_not_found() make the
  * Git Download Updater's own HTTP call return a fixture instead, by registering a `pre_http_request`

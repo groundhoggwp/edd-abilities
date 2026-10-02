@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Get_Subscription extends Ability {
 
-	protected const NAME       = 'edd/get-subscription';
-	protected const CATEGORY   = 'edd-subscriptions';
+	protected const NAME       = 'edd-alt/get-subscription';
+	protected const CATEGORY   = 'edd-alt-subscriptions';
 	protected const CAPABILITY = 'edit_shop_payments';
 
 	protected const READONLY   = true;

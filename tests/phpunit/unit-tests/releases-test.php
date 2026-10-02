@@ -1,15 +1,15 @@
 <?php
 
 /**
- * edd/release-product-version. Skipped unless both EDD Software Licensing and the EDD Git Download
+ * edd-alt/release-product-version. Skipped unless both EDD Software Licensing and the EDD Git Download
  * Updater are loaded. Never makes a real request to GitHub or Bitbucket - see mock_zipball() in
  * EDD_Abilities_Release_Test_Case.
  */
 class Releases_Test extends EDD_Abilities_Release_Test_Case {
 
 	public function test_the_release_ability_is_registered() {
-		$this->assertTrue( wp_has_ability( 'edd/release-product-version' ) );
-		$this->assertSame( 'edd-releases', wp_get_ability( 'edd/release-product-version' )->get_category() );
+		$this->assertTrue( wp_has_ability( 'edd-alt/release-product-version' ) );
+		$this->assertSame( 'edd-alt-releases', wp_get_ability( 'edd-alt/release-product-version' )->get_category() );
 	}
 
 	/* ---------------------------------------------------------------------------------------- */
@@ -24,7 +24,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 
 		$this->mock_zipball( 'widget' );
 
-		$result = $this->run_ok( 'edd/release-product-version', [
+		$result = $this->run_ok( 'edd-alt/release-product-version', [
 			'id'        => $id,
 			'version'   => 'v1.1.0',
 			'changelog' => '<h4>1.1.0</h4><ul><li>Fixed a bug.</li></ul>',
@@ -71,7 +71,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 
 		$this->mock_zipball( 'widget' );
 
-		$result = $this->run_ok( 'edd/release-product-version', [
+		$result = $this->run_ok( 'edd-alt/release-product-version', [
 			'id'        => $id,
 			'version'   => '1.3',
 			'changelog' => '<h4>1.3</h4>',
@@ -93,7 +93,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 		$id = $this->create_git_product( [ 'repo' => 'acme/widget' ] );
 		$this->mock_zipball( 'widget' );
 
-		$result = $this->run_ok( 'edd/release-product-version', [ 'id' => $id, 'version' => 'v2.0.0', 'changelog' => '<h4>2.0.0</h4>' ] );
+		$result = $this->run_ok( 'edd-alt/release-product-version', [ 'id' => $id, 'version' => 'v2.0.0', 'changelog' => '<h4>2.0.0</h4>' ] );
 
 		wp_cache_flush();
 
@@ -121,7 +121,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 			return $meta_key === $blocked_key ? false : $check;
 		}, 10, 3 );
 
-		$result = $this->run_ability( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.1.0', 'changelog' => '<h4>1.1.0</h4>' ] );
+		$result = $this->run_ability( 'edd-alt/release-product-version', [ 'id' => $id, 'version' => '1.1.0', 'changelog' => '<h4>1.1.0</h4>' ] );
 
 		$this->assertAbilityError( 'edd_abilities_not_saved', $result );
 		$this->assertSame( '<h4>1.0.0</h4>', stripslashes( get_post_meta( $id, '_edd_sl_changelog', true ) ), 'The changelog must not announce a version that did not save.' );
@@ -139,7 +139,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 		$id = $this->create_git_product();
 		$this->mock_zipball( 'widget' );
 
-		$result = $this->run_ok( 'edd/release-product-version', [
+		$result = $this->run_ok( 'edd-alt/release-product-version', [
 			'id'        => $id,
 			'version'   => '1.0.0',
 			'changelog' => '<h4>1.0.0</h4><ul><li>First release.</li></ul>',
@@ -154,7 +154,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 		$id = $this->create_git_product( [ 'repo' => 'acme/widget' ] );
 		$this->mock_zipball( 'widget' );
 
-		$result = $this->run_ok( 'edd/release-product-version', [
+		$result = $this->run_ok( 'edd-alt/release-product-version', [
 			'id'        => $id,
 			'version'   => '1.0.0',
 			'changelog' => '<h4>1.0.0</h4><script>alert(1)</script><ul><li>Fixed things.</li></ul>',
@@ -178,7 +178,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 
 		$this->mock_zipball( 'widget' );
 
-		$result = $this->run_ok( 'edd/release-product-version', [
+		$result = $this->run_ok( 'edd-alt/release-product-version', [
 			'id'        => $id,
 			'version'   => '1.0.0',
 			'changelog' => '<h4>1.0.0</h4>',
@@ -193,14 +193,14 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 	/* ---------------------------------------------------------------------------------------- */
 
 	public function test_refuses_an_unknown_product() {
-		$this->assertAbilityError( 'edd_abilities_not_found', $this->run_ability( 'edd/release-product-version', [ 'id' => 999999, 'version' => '1.0.0', 'changelog' => 'x' ] ) );
+		$this->assertAbilityError( 'edd_abilities_not_found', $this->run_ability( 'edd-alt/release-product-version', [ 'id' => 999999, 'version' => '1.0.0', 'changelog' => 'x' ] ) );
 	}
 
 	public function test_refuses_a_product_that_is_not_git_enabled() {
 
 		$id = $this->create_product();
 
-		$this->assertAbilityError( 'edd_abilities_not_git_enabled', $this->run_ability( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.0.0', 'changelog' => 'x' ] ) );
+		$this->assertAbilityError( 'edd_abilities_not_git_enabled', $this->run_ability( 'edd-alt/release-product-version', [ 'id' => $id, 'version' => '1.0.0', 'changelog' => 'x' ] ) );
 	}
 
 	public function test_refuses_a_git_enabled_product_with_no_repo_configured() {
@@ -209,7 +209,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 		update_post_meta( $id, '_edd_download_use_git', 1 );
 		update_post_meta( $id, 'edd_download_files', [ 0 => [ 'git_url' => '', 'condition' => 'all' ] ] );
 
-		$this->assertAbilityError( 'edd_abilities_no_git_repo', $this->run_ability( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.0.0', 'changelog' => 'x' ] ) );
+		$this->assertAbilityError( 'edd_abilities_no_git_repo', $this->run_ability( 'edd-alt/release-product-version', [ 'id' => $id, 'version' => '1.0.0', 'changelog' => 'x' ] ) );
 	}
 
 	public function test_refuses_a_product_with_more_than_one_file_entry_to_avoid_deleting_the_others() {
@@ -219,7 +219,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 		$files[1] = [ 'name' => 'A second, unrelated file', 'file' => 'https://example.com/other.zip', 'condition' => 'all' ];
 		update_post_meta( $id, 'edd_download_files', $files );
 
-		$this->assertAbilityError( 'edd_abilities_multiple_files', $this->run_ability( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.0.0', 'changelog' => 'x' ] ) );
+		$this->assertAbilityError( 'edd_abilities_multiple_files', $this->run_ability( 'edd-alt/release-product-version', [ 'id' => $id, 'version' => '1.0.0', 'changelog' => 'x' ] ) );
 		$this->assertCount( 2, get_post_meta( $id, 'edd_download_files', true ), 'Refusing must leave both file entries untouched.' );
 	}
 
@@ -233,7 +233,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 		// connecting a GitHub account (create_git_product()) would otherwise leak into this one.
 		edd_delete_option( 'gh_access_token' );
 
-		$this->assertAbilityError( 'edd_abilities_git_not_connected', $this->run_ability( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.0.0', 'changelog' => 'x' ] ) );
+		$this->assertAbilityError( 'edd_abilities_git_not_connected', $this->run_ability( 'edd-alt/release-product-version', [ 'id' => $id, 'version' => '1.0.0', 'changelog' => 'x' ] ) );
 	}
 
 	public function test_an_omitted_or_blank_changelog_is_skipped_not_an_error() {
@@ -242,7 +242,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 		update_post_meta( $id, '_edd_sl_changelog', addslashes( '<h4>0.9.0</h4><ul><li>Existing.</li></ul>' ) );
 
 		$this->mock_zipball( 'widget' );
-		$omitted = $this->run_ok( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.0.0' ] );
+		$omitted = $this->run_ok( 'edd-alt/release-product-version', [ 'id' => $id, 'version' => '1.0.0' ] );
 
 		$this->assertSame( '<h4>0.9.0</h4><ul><li>Existing.</li></ul>', $omitted['changelog'], 'Unchanged when changelog is omitted.' );
 		$this->assertSame( '<h4>0.9.0</h4><ul><li>Existing.</li></ul>', stripslashes( get_post_meta( $id, '_edd_sl_changelog', true ) ) );
@@ -251,7 +251,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 		$this->assertSame( '1.0.0', get_post_meta( $id, '_edd_sl_version', true ) );
 
 		$this->mock_zipball( 'widget' );
-		$blank = $this->run_ok( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.1.0', 'changelog' => '   ' ] );
+		$blank = $this->run_ok( 'edd-alt/release-product-version', [ 'id' => $id, 'version' => '1.1.0', 'changelog' => '   ' ] );
 
 		$this->assertSame( '<h4>0.9.0</h4><ul><li>Existing.</li></ul>', $blank['changelog'], 'Unchanged when changelog is blank.' );
 		$this->assertSame( '1.1.0', get_post_meta( $id, '_edd_sl_version', true ) );
@@ -271,7 +271,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 
 		$this->mock_zipball( 'widget' );
 
-		$result = $this->run_ok( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.3' ] );
+		$result = $this->run_ok( 'edd-alt/release-product-version', [ 'id' => $id, 'version' => '1.3' ] );
 
 		$this->assertSame( 'widget-1.3.zip', $result['file_name'] );
 		$this->assertSame( '<h4>1.3</h4><ul><li>Already shipped.</li></ul>', $result['changelog'], 'Re-running with no changelog must not duplicate the entry.' );
@@ -285,11 +285,11 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 			[ 'version' => '1.0.0', 'changelog' => 'x' ],
 			[ 'id' => $id, 'changelog' => 'x' ],
 		] as $input ) {
-			$this->assertAbilityError( 'ability_invalid_input', $this->run_ability( 'edd/release-product-version', $input ) );
+			$this->assertAbilityError( 'ability_invalid_input', $this->run_ability( 'edd-alt/release-product-version', $input ) );
 		}
 
 		$this->mock_zipball( 'widget' );
-		$this->run_ok( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.0.0' ] );
+		$this->run_ok( 'edd-alt/release-product-version', [ 'id' => $id, 'version' => '1.0.0' ] );
 	}
 
 	/* ---------------------------------------------------------------------------------------- */
@@ -301,7 +301,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 		$id = $this->create_git_product();
 		$this->mock_zipball_not_found();
 
-		$result = $this->run_ability( 'edd/release-product-version', [
+		$result = $this->run_ability( 'edd-alt/release-product-version', [
 			'id'        => $id,
 			'version'   => 'v9.9.9',
 			'changelog' => '<h4>9.9.9</h4>',
@@ -325,7 +325,7 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 
 		wp_set_current_user( $this->create_shop_user( [ 'edit_shop_payments', 'view_shop_reports', 'manage_licenses' ] ) );
 
-		$this->assertAbilityError( 'ability_invalid_permissions', $this->run_ability( 'edd/release-product-version', [
+		$this->assertAbilityError( 'ability_invalid_permissions', $this->run_ability( 'edd-alt/release-product-version', [
 			'id'        => $id,
 			'version'   => '1.0.0',
 			'changelog' => '<h4>1.0.0</h4>',

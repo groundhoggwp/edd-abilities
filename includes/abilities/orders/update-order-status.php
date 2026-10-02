@@ -15,14 +15,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Update_Order_Status extends Ability {
 
-	protected const NAME       = 'edd/update-order-status';
-	protected const CATEGORY   = 'edd-orders';
+	protected const NAME       = 'edd-alt/update-order-status';
+	protected const CATEGORY   = 'edd-alt-orders';
 	protected const CAPABILITY = 'edit_shop_payments';
 
 	protected const IDEMPOTENT = true;
 
 	/**
-	 * Statuses that must go through edd/refund-order so a refund order and the gateway refund
+	 * Statuses that must go through edd-alt/refund-order so a refund order and the gateway refund
 	 * are handled properly, rather than just flipping a column.
 	 */
 	protected const REFUND_STATUSES = [ 'refunded', 'partially_refunded' ];
@@ -33,7 +33,7 @@ class Update_Order_Status extends Ability {
 
 		return [
 			'label'       => __( 'Update Order Status', 'edd-abilities' ),
-			'description' => __( 'Change an order\'s status. This fires EDD\'s normal status hooks, so completing an order sends receipts and generates licenses. To refund an order use edd/refund-order instead.', 'edd-abilities' ),
+			'description' => __( 'Change an order\'s status. This fires EDD\'s normal status hooks, so completing an order sends receipts and generates licenses. To refund an order use edd-alt/refund-order instead.', 'edd-abilities' ),
 
 			'input_schema' => [
 				'type'                 => 'object',

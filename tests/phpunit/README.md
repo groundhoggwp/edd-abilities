@@ -14,7 +14,7 @@ callback and output validation are all exercised the way an MCP client would hit
 | `store-stats-test.php` | Totals, tax, refunds, custom date ranges |
 | `licenses-test.php` | Software Licensing abilities (skipped if the add-on is not loaded) |
 | `subscriptions-test.php` | Recurring Payments abilities (skipped if the add-on is not loaded) |
-| `releases-test.php` | `edd/release-product-version`: fetch, changelog prepend, guard clauses, permissions (skipped unless Software Licensing and the Git Download Updater are both loaded) |
+| `releases-test.php` | `edd-alt/release-product-version`: fetch, changelog prepend, guard clauses, permissions (skipped unless Software Licensing and the Git Download Updater are both loaded) |
 | `helpers-test.php` | Autoloader file naming, `Schema` helpers |
 
 ## Requirements

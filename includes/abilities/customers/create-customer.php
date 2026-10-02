@@ -17,8 +17,8 @@ class Create_Customer extends Ability {
 
 	use Checks_Customer_Caps;
 
-	protected const NAME     = 'edd/create-customer';
-	protected const CATEGORY = 'edd-customers';
+	protected const NAME     = 'edd-alt/create-customer';
+	protected const CATEGORY = 'edd-alt-customers';
 
 	protected function get_args(): array {
 

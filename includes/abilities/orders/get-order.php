@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Get_Order extends Ability {
 
-	protected const NAME       = 'edd/get-order';
-	protected const CATEGORY   = 'edd-orders';
+	protected const NAME       = 'edd-alt/get-order';
+	protected const CATEGORY   = 'edd-alt-orders';
 	protected const CAPABILITY = 'edit_shop_payments';
 
 	protected const READONLY   = true;

@@ -3,7 +3,7 @@
 class Discounts_Test extends EDD_Abilities_Test_Case {
 
 	protected function create_discount( array $input = [] ): array {
-		return $this->run_ok( 'edd/create-discount', array_merge( [
+		return $this->run_ok( 'edd-alt/create-discount', array_merge( [
 			'name'        => 'Test discount',
 			'code'        => 'SAVE20',
 			'amount_type' => 'percent',
@@ -64,10 +64,10 @@ class Discounts_Test extends EDD_Abilities_Test_Case {
 
 		$this->create_discount();
 
-		$this->assertAbilityError( 'edd_abilities_code_exists', $this->run_ability( 'edd/create-discount', [ 'name' => 'Dupe', 'code' => 'save20', 'amount_type' => 'flat', 'amount' => 1 ] ) );
-		$this->assertAbilityError( 'edd_abilities_invalid_amount', $this->run_ability( 'edd/create-discount', [ 'name' => 'Too much', 'code' => 'OVER', 'amount_type' => 'percent', 'amount' => 150 ] ) );
-		$this->assertAbilityError( 'ability_invalid_input', $this->run_ability( 'edd/create-discount', [ 'name' => 'Zero', 'code' => 'ZERO', 'amount_type' => 'flat', 'amount' => 0 ] ) );
-		$this->assertAbilityError( 'ability_invalid_input', $this->run_ability( 'edd/create-discount', [ 'name' => 'Bad type', 'code' => 'BAD', 'amount_type' => 'bogus', 'amount' => 5 ] ) );
+		$this->assertAbilityError( 'edd_abilities_code_exists', $this->run_ability( 'edd-alt/create-discount', [ 'name' => 'Dupe', 'code' => 'save20', 'amount_type' => 'flat', 'amount' => 1 ] ) );
+		$this->assertAbilityError( 'edd_abilities_invalid_amount', $this->run_ability( 'edd-alt/create-discount', [ 'name' => 'Too much', 'code' => 'OVER', 'amount_type' => 'percent', 'amount' => 150 ] ) );
+		$this->assertAbilityError( 'ability_invalid_input', $this->run_ability( 'edd-alt/create-discount', [ 'name' => 'Zero', 'code' => 'ZERO', 'amount_type' => 'flat', 'amount' => 0 ] ) );
+		$this->assertAbilityError( 'ability_invalid_input', $this->run_ability( 'edd-alt/create-discount', [ 'name' => 'Bad type', 'code' => 'BAD', 'amount_type' => 'bogus', 'amount' => 5 ] ) );
 
 		$this->assertEmpty( edd_get_discount_by_code( 'OVER' ) );
 	}
@@ -97,7 +97,7 @@ class Discounts_Test extends EDD_Abilities_Test_Case {
 
 	public function test_create_discount_rejects_an_unparseable_date() {
 
-		$this->assertAbilityError( 'edd_abilities_invalid_date', $this->run_ability( 'edd/create-discount', [
+		$this->assertAbilityError( 'edd_abilities_invalid_date', $this->run_ability( 'edd-alt/create-discount', [
 			'name'        => 'Bad date',
 			'code'        => 'BADDATE',
 			'amount_type' => 'flat',
@@ -112,12 +112,12 @@ class Discounts_Test extends EDD_Abilities_Test_Case {
 
 		$created = $this->create_discount();
 
-		$this->assertSame( $created['id'], $this->run_ok( 'edd/get-discount', [ 'id' => $created['id'] ] )['id'] );
-		$this->assertSame( $created['id'], $this->run_ok( 'edd/get-discount', [ 'code' => 'SAVE20' ] )['id'] );
+		$this->assertSame( $created['id'], $this->run_ok( 'edd-alt/get-discount', [ 'id' => $created['id'] ] )['id'] );
+		$this->assertSame( $created['id'], $this->run_ok( 'edd-alt/get-discount', [ 'code' => 'SAVE20' ] )['id'] );
 
-		$this->assertAbilityError( 'edd_abilities_missing_identifier', $this->run_ability( 'edd/get-discount' ) );
-		$this->assertAbilityError( 'edd_abilities_not_found', $this->run_ability( 'edd/get-discount', [ 'code' => 'NOPE' ] ) );
-		$this->assertAbilityError( 'edd_abilities_not_found', $this->run_ability( 'edd/get-discount', [ 'id' => 999999 ] ) );
+		$this->assertAbilityError( 'edd_abilities_missing_identifier', $this->run_ability( 'edd-alt/get-discount' ) );
+		$this->assertAbilityError( 'edd_abilities_not_found', $this->run_ability( 'edd-alt/get-discount', [ 'code' => 'NOPE' ] ) );
+		$this->assertAbilityError( 'edd_abilities_not_found', $this->run_ability( 'edd-alt/get-discount', [ 'id' => 999999 ] ) );
 	}
 
 	public function test_update_discount_status_and_list_filters() {
@@ -125,13 +125,13 @@ class Discounts_Test extends EDD_Abilities_Test_Case {
 		$one = $this->create_discount( [ 'code' => 'ONE' ] );
 		$two = $this->create_discount( [ 'code' => 'TWO' ] );
 
-		$this->assertSame( 'inactive', $this->run_ok( 'edd/update-discount-status', [ 'id' => $one['id'], 'status' => 'inactive' ] )['status'] );
+		$this->assertSame( 'inactive', $this->run_ok( 'edd-alt/update-discount-status', [ 'id' => $one['id'], 'status' => 'inactive' ] )['status'] );
 
-		$inactive = $this->run_ok( 'edd/list-discounts', [ 'status' => [ 'inactive' ] ] );
+		$inactive = $this->run_ok( 'edd-alt/list-discounts', [ 'status' => [ 'inactive' ] ] );
 		$this->assertSame( [ $one['id'] ], wp_list_pluck( $inactive['discounts'], 'id' ) );
 		$this->assertSame( 1, $inactive['total_items'] );
 
-		$active = $this->run_ok( 'edd/list-discounts', [ 'status' => [ 'active' ] ] );
+		$active = $this->run_ok( 'edd-alt/list-discounts', [ 'status' => [ 'active' ] ] );
 		$this->assertSame( [ $two['id'] ], wp_list_pluck( $active['discounts'], 'id' ) );
 	}
 
@@ -140,13 +140,13 @@ class Discounts_Test extends EDD_Abilities_Test_Case {
 		$keep     = $this->create_discount( [ 'code' => 'KEEP' ] );
 		$archived = $this->create_discount( [ 'code' => 'GONE' ] );
 
-		$this->run_ok( 'edd/update-discount-status', [ 'id' => $archived['id'], 'status' => 'archived' ] );
+		$this->run_ok( 'edd-alt/update-discount-status', [ 'id' => $archived['id'], 'status' => 'archived' ] );
 
-		$default = $this->run_ok( 'edd/list-discounts' );
+		$default = $this->run_ok( 'edd-alt/list-discounts' );
 		$this->assertSame( [ $keep['id'] ], wp_list_pluck( $default['discounts'], 'id' ) );
 		$this->assertSame( 1, $default['total_items'] );
 
-		$asked = $this->run_ok( 'edd/list-discounts', [ 'status' => [ 'archived' ] ] );
+		$asked = $this->run_ok( 'edd-alt/list-discounts', [ 'status' => [ 'archived' ] ] );
 		$this->assertSame( [ $archived['id'] ], wp_list_pluck( $asked['discounts'], 'id' ) );
 	}
 
@@ -154,8 +154,8 @@ class Discounts_Test extends EDD_Abilities_Test_Case {
 
 		$discount = $this->create_discount();
 
-		$this->assertAbilityError( 'edd_abilities_not_found', $this->run_ability( 'edd/update-discount-status', [ 'id' => 999999, 'status' => 'active' ] ) );
-		$this->assertAbilityError( 'ability_invalid_input', $this->run_ability( 'edd/update-discount-status', [ 'id' => $discount['id'], 'status' => 'expired' ] ) );
+		$this->assertAbilityError( 'edd_abilities_not_found', $this->run_ability( 'edd-alt/update-discount-status', [ 'id' => 999999, 'status' => 'active' ] ) );
+		$this->assertAbilityError( 'ability_invalid_input', $this->run_ability( 'edd-alt/update-discount-status', [ 'id' => $discount['id'], 'status' => 'expired' ] ) );
 	}
 
 	public function test_discounts_need_manage_shop_discounts() {
@@ -165,10 +165,10 @@ class Discounts_Test extends EDD_Abilities_Test_Case {
 		wp_set_current_user( $this->create_shop_user( [ 'edit_shop_payments', 'view_shop_reports' ] ) );
 
 		foreach ( [
-			[ 'edd/list-discounts', [] ],
-			[ 'edd/get-discount', [ 'id' => $discount['id'] ] ],
-			[ 'edd/create-discount', [ 'name' => 'x', 'code' => 'X', 'amount_type' => 'flat', 'amount' => 1 ] ],
-			[ 'edd/update-discount-status', [ 'id' => $discount['id'], 'status' => 'inactive' ] ],
+			[ 'edd-alt/list-discounts', [] ],
+			[ 'edd-alt/get-discount', [ 'id' => $discount['id'] ] ],
+			[ 'edd-alt/create-discount', [ 'name' => 'x', 'code' => 'X', 'amount_type' => 'flat', 'amount' => 1 ] ],
+			[ 'edd-alt/update-discount-status', [ 'id' => $discount['id'], 'status' => 'inactive' ] ],
 		] as $call ) {
 			$this->assertAbilityError( 'ability_invalid_permissions', $this->run_ability( $call[0], $call[1] ) );
 		}

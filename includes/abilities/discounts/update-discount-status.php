@@ -14,8 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Update_Discount_Status extends Ability {
 
-	protected const NAME       = 'edd/update-discount-status';
-	protected const CATEGORY   = 'edd-discounts';
+	protected const NAME       = 'edd-alt/update-discount-status';
+	protected const CATEGORY   = 'edd-alt-discounts';
 	protected const CAPABILITY = 'manage_shop_discounts';
 
 	protected const IDEMPOTENT = true;

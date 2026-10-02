@@ -16,8 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Refund_Order extends Ability {
 
-	protected const NAME       = 'edd/refund-order';
-	protected const CATEGORY   = 'edd-orders';
+	protected const NAME       = 'edd-alt/refund-order';
+	protected const CATEGORY   = 'edd-alt-orders';
 	protected const CAPABILITY = 'edit_shop_payments';
 
 	protected const DESTRUCTIVE = true;
@@ -26,7 +26,7 @@ class Refund_Order extends Ability {
 
 		return [
 			'label'       => __( 'Refund Order', 'edd-abilities' ),
-			'description' => __( 'Refund an Easy Digital Downloads order, fully or partially. Omit "items" to refund the whole order (including fees and credits). To refund part of it, list the order items to refund with a quantity and amount for each - get the order_item ids and amounts from edd/get-order with items included. A partial refund does not refund fees or credits. Orders outside the refund window or already fully refunded are rejected (see is_refundable on edd/get-order). This cannot be undone.', 'edd-abilities' ),
+			'description' => __( 'Refund an Easy Digital Downloads order, fully or partially. Omit "items" to refund the whole order (including fees and credits). To refund part of it, list the order items to refund with a quantity and amount for each - get the order_item ids and amounts from edd-alt/get-order with items included. A partial refund does not refund fees or credits. Orders outside the refund window or already fully refunded are rejected (see is_refundable on edd-alt/get-order). This cannot be undone.', 'edd-abilities' ),
 
 			'input_schema' => [
 				'type'                 => 'object',

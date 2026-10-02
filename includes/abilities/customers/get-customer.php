@@ -17,8 +17,8 @@ class Get_Customer extends Ability {
 
 	use Checks_Customer_Caps;
 
-	protected const NAME     = 'edd/get-customer';
-	protected const CATEGORY = 'edd-customers';
+	protected const NAME     = 'edd-alt/get-customer';
+	protected const CATEGORY = 'edd-alt-customers';
 
 	protected const READONLY   = true;
 	protected const IDEMPOTENT = true;
