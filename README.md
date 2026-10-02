@@ -222,11 +222,14 @@ the Software Licensing changelog in the same step, which the admin screen does n
 | `edd/release-product-version` | **Destructive** | `edit_products` | Pull a tag from the product's connected repository, repackage it as the download (bumping the Software Licensing version), and prepend your changelog HTML to the product's changelog. |
 
 `edd/release-product-version` takes `id`, `version` (the exact tag to pull - it does not create one)
-and `changelog` (your complete HTML entry for this release, including its own heading; it is prepended
-as-is above whatever changelog the product already has). It only ever acts on a product with exactly
-one file: the Git Download Updater replaces the entire file list with just the one it updates, so a
-product with more than one file entry is refused rather than risk deleting the others. Not idempotent -
-running it twice with the same version fetches the tag again and prepends the changelog entry again.
+and an optional `changelog` (your complete HTML entry for this release, including its own heading;
+it is prepended as-is above whatever changelog the product already has). Omit `changelog`, or leave
+it empty, to re-fetch and repackage the tag without touching the changelog at all - e.g. to
+force-regenerate the download file for a version you've already shipped. It only ever acts on a
+product with exactly one file: the Git Download Updater replaces the entire file list with just the
+one it updates, so a product with more than one file entry is refused rather than risk deleting the
+others. Not idempotent - calling it again always re-fetches and repackages, and if a changelog entry
+is given, prepends it again too.
 
 ### Conventions
 

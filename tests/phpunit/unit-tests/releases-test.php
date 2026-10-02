@@ -187,28 +187,60 @@ class Releases_Test extends EDD_Abilities_Release_Test_Case {
 		$this->assertAbilityError( 'edd_abilities_git_not_connected', $this->run_ability( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.0.0', 'changelog' => 'x' ] ) );
 	}
 
-	public function test_refuses_an_empty_changelog_without_fetching_anything() {
+	public function test_an_omitted_or_blank_changelog_is_skipped_not_an_error() {
 
 		$id = $this->create_git_product();
+		update_post_meta( $id, '_edd_sl_changelog', addslashes( '<h4>0.9.0</h4><ul><li>Existing.</li></ul>' ) );
+
 		$this->mock_zipball( 'widget' );
+		$omitted = $this->run_ok( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.0.0' ] );
 
-		$this->assertAbilityError( 'edd_abilities_empty_changelog', $this->run_ability( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.0.0', 'changelog' => '   ' ] ) );
+		$this->assertSame( '<h4>0.9.0</h4><ul><li>Existing.</li></ul>', $omitted['changelog'], 'Unchanged when changelog is omitted.' );
+		$this->assertSame( '<h4>0.9.0</h4><ul><li>Existing.</li></ul>', stripslashes( get_post_meta( $id, '_edd_sl_changelog', true ) ) );
 
-		$files = get_post_meta( $id, 'edd_download_files', true );
-		$this->assertEmpty( $files[0]['git_version'] ?? '', 'Nothing should have been fetched before the changelog was validated.' );
+		// The fetch itself still happened.
+		$this->assertSame( '1.0.0', get_post_meta( $id, '_edd_sl_version', true ) );
+
+		$this->mock_zipball( 'widget' );
+		$blank = $this->run_ok( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.1.0', 'changelog' => '   ' ] );
+
+		$this->assertSame( '<h4>0.9.0</h4><ul><li>Existing.</li></ul>', $blank['changelog'], 'Unchanged when changelog is blank.' );
+		$this->assertSame( '1.1.0', get_post_meta( $id, '_edd_sl_version', true ) );
 	}
 
-	public function test_schema_rejects_missing_required_fields() {
+	public function test_an_omitted_changelog_can_force_regenerate_an_already_shipped_version() {
+
+		// Reproduces the live cleanup case: a product whose stored file name is stale for the
+		// version it claims (see the file-name regression test above). Re-run the same tag with no
+		// changelog to fix just the file, without re-prepending the changelog entry already shipped.
+		$id = $this->create_git_product( [ 'repo' => 'acme/widget' ] );
+		update_post_meta( $id, '_edd_sl_changelog', addslashes( '<h4>1.3</h4><ul><li>Already shipped.</li></ul>' ) );
+
+		$files            = get_post_meta( $id, 'edd_download_files', true );
+		$files[0]['name'] = 'widget-1.2.zip'; // stale, as if a prior release mis-named it
+		update_post_meta( $id, 'edd_download_files', $files );
+
+		$this->mock_zipball( 'widget' );
+
+		$result = $this->run_ok( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.3' ] );
+
+		$this->assertSame( 'widget-1.3.zip', $result['file_name'] );
+		$this->assertSame( '<h4>1.3</h4><ul><li>Already shipped.</li></ul>', $result['changelog'], 'Re-running with no changelog must not duplicate the entry.' );
+	}
+
+	public function test_schema_rejects_a_missing_id_or_version_but_changelog_is_optional() {
 
 		$id = $this->create_git_product();
 
 		foreach ( [
 			[ 'version' => '1.0.0', 'changelog' => 'x' ],
 			[ 'id' => $id, 'changelog' => 'x' ],
-			[ 'id' => $id, 'version' => '1.0.0' ],
 		] as $input ) {
 			$this->assertAbilityError( 'ability_invalid_input', $this->run_ability( 'edd/release-product-version', $input ) );
 		}
+
+		$this->mock_zipball( 'widget' );
+		$this->run_ok( 'edd/release-product-version', [ 'id' => $id, 'version' => '1.0.0' ] );
 	}
 
 	/* ---------------------------------------------------------------------------------------- */

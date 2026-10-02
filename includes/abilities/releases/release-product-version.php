@@ -12,8 +12,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Ships a new version of a product whose files are pulled from GitHub or Bitbucket by the EDD
  * Git Download Updater add-on: fetches the given tag, repackages it the same way the admin "Update
- * File" button does, and prepends a caller-supplied changelog entry to the product's Software
- * Licensing changelog.
+ * File" button does, and - if a changelog entry is given - prepends it to the product's Software
+ * Licensing changelog. The changelog is optional, so this also doubles as "re-fetch and repackage
+ * this product's tag" - e.g. to force-regenerate the file after fixing how it gets named, or to
+ * pick up an amended tag - without touching the changelog at all.
  *
  * Only registered when both the Git Download Updater and Software Licensing add-ons are active -
  * the whole point of this ability is bridging the two.
@@ -36,16 +38,16 @@ class Release_Product_Version extends Ability {
 
 		return [
 			'label'       => __( 'Release Product Version', 'edd-abilities' ),
-			'description' => __( 'Ship a new version of a product that pulls its files from a connected GitHub or Bitbucket repository (the EDD Git Download Updater add-on): fetches the given tag, repackages it as the download, bumps the Software Licensing version, and prepends your changelog entry to the product\'s changelog. The product must already have a repository connected on its Files tab - this does not connect one. Not idempotent: calling it twice with the same version re-fetches the tag and prepends the changelog entry again.', 'edd-abilities' ),
+			'description' => __( 'Ship a new version of a product that pulls its files from a connected GitHub or Bitbucket repository (the EDD Git Download Updater add-on): fetches the given tag, repackages it as the download, bumps the Software Licensing version, and - if given a changelog entry - prepends it to the product\'s changelog. Omit changelog (or leave it empty) to just re-fetch and repackage the tag without touching the changelog, e.g. to force-regenerate the file for a version already shipped. The product must already have a repository connected on its Files tab - this does not connect one. Not idempotent: calling it again always re-fetches and repackages, and if a changelog entry is given, prepends it again too.', 'edd-abilities' ),
 
 			'input_schema' => [
 				'type'                 => 'object',
 				'additionalProperties' => false,
-				'required'             => [ 'id', 'version', 'changelog' ],
+				'required'             => [ 'id', 'version' ],
 				'properties'           => [
 					'id'        => [ 'type' => 'integer', 'description' => __( 'The product (download) ID. It must already have a git repository connected.', 'edd-abilities' ) ],
-					'version'   => [ 'type' => 'string', 'minLength' => 1, 'description' => __( 'The exact tag to pull from the connected repository, e.g. "v1.4.0". Must already exist there - this does not create a tag.', 'edd-abilities' ) ],
-					'changelog' => [ 'type' => 'string', 'minLength' => 1, 'description' => __( 'The complete HTML for this release\'s changelog entry, including its own heading - e.g. "<h4>1.4.0</h4><ul><li>...</li></ul>". Prepended as-is above the product\'s existing changelog.', 'edd-abilities' ) ],
+					'version'   => [ 'type' => 'string', 'minLength' => 1, 'description' => __( 'The exact tag to pull from the connected repository, e.g. "v1.4.0". Must already exist there - this does not create a tag. May be the same tag already shipped, to force-regenerate the file.', 'edd-abilities' ) ],
+					'changelog' => [ 'type' => 'string', 'default' => '', 'description' => __( 'The complete HTML for this release\'s changelog entry, including its own heading - e.g. "<h4>1.4.0</h4><ul><li>...</li></ul>". Prepended as-is above the product\'s existing changelog. Omit or leave empty to leave the changelog untouched - useful when re-fetching a tag just to regenerate the file.', 'edd-abilities' ) ],
 				],
 			],
 
@@ -61,7 +63,7 @@ class Release_Product_Version extends Ability {
 					'file'         => [ 'type' => 'string', 'description' => __( 'URL of the newly packaged download file.', 'edd-abilities' ) ],
 					'file_name'    => [ 'type' => 'string' ],
 					'readme_url'   => [ 'type' => [ 'string', 'null' ], 'description' => __( 'URL of the repo\'s readme.txt, if one was found and readme parsing is enabled. Not the source of the changelog - that always comes from the "changelog" input.', 'edd-abilities' ) ],
-					'changelog'    => [ 'type' => 'string', 'description' => __( 'The product\'s full changelog after prepending, i.e. what customers and license checks now see.', 'edd-abilities' ) ],
+					'changelog'    => [ 'type' => 'string', 'description' => __( 'The product\'s full changelog, i.e. what customers and license checks now see. Unchanged from before the call if no changelog entry was given.', 'edd-abilities' ) ],
 					'date_shipped' => Schema::datetime_schema(),
 				],
 			],
@@ -128,11 +130,9 @@ class Release_Product_Version extends Ability {
 			return new \WP_Error( 'edd_abilities_git_not_connected', sprintf( __( 'No %s account is connected. Connect one under Downloads > Settings > Extensions > Git Download Updater first.', 'edd-abilities' ), 'bitbucket' === $provider_id ? 'Bitbucket' : 'GitHub' ) );
 		}
 
+		// Empty/omitted means "don't touch the changelog" - e.g. a plain re-fetch of an already
+		// shipped tag - not an error.
 		$entry = trim( wp_kses_post( $input['changelog'] ?? '' ) );
-
-		if ( '' === $entry ) {
-			return new \WP_Error( 'edd_abilities_empty_changelog', __( 'The changelog entry cannot be empty.', 'edd-abilities' ) );
-		}
 
 		try {
 			$provider = edd_git_download_updater()->providerRegistry->getProvider( $provider_id );
@@ -178,9 +178,13 @@ class Release_Product_Version extends Ability {
 		}
 
 		$existing          = stripslashes( (string) get_post_meta( $id, '_edd_sl_changelog', true ) );
-		$updated_changelog = '' !== $existing ? $entry . "\n" . $existing : $entry;
+		$updated_changelog = $existing;
 
-		update_post_meta( $id, '_edd_sl_changelog', addslashes( $updated_changelog ) );
+		if ( '' !== $entry ) {
+			$updated_changelog = '' !== $existing ? $entry . "\n" . $existing : $entry;
+
+			update_post_meta( $id, '_edd_sl_changelog', addslashes( $updated_changelog ) );
+		}
 
 		return [
 			'id'           => $id,
