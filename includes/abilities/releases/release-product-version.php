@@ -217,6 +217,19 @@ class Release_Product_Version extends Ability {
 			update_post_meta( $id, '_edd_sl_changelog', addslashes( $updated_changelog ) );
 		}
 
+		/**
+		 * Fires once a release has been fully saved: the new file, the Software Licensing version
+		 * and, if one was given, the changelog.
+		 *
+		 * Re-fetching a tag that is already shipped writes identical meta, which fires no meta
+		 * hooks, so this is the only signal that the file on disk changed in that case.
+		 *
+		 * @param int    $id         The product (download) ID.
+		 * @param string $sl_version The version now set in Software Licensing.
+		 * @param string $file       URL of the newly packaged download file.
+		 */
+		do_action( 'edd_abilities/product_released', $id, $sl_version, (string) $new_zip['url'] );
+
 		return [
 			'id'           => $id,
 			'product_name' => get_the_title( $id ),

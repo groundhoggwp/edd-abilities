@@ -16,6 +16,33 @@ class Licenses_Test extends EDD_Abilities_Licensing_Test_Case {
 	/* edd-alt/get-license                                                                          */
 	/* ---------------------------------------------------------------------------------------- */
 
+	public function test_a_completed_manual_order_issues_the_license() {
+
+		$customer = $this->create_customer( [ 'email' => 'licensee@example.com' ] );
+		$product  = $this->create_licensed_product( [ 'price' => '49.00' ] );
+
+		$order = $this->run_ok( 'edd-alt/create-order', [ 'customer_id' => $customer, 'items' => [ [ 'product_id' => $product ] ] ] );
+
+		$licenses = $this->run_ok( 'edd-alt/list-licenses', [ 'order_id' => $order['id'] ] );
+
+		$this->assertSame( 1, $licenses['total_items'], 'Completing the order should have made Software Licensing issue a license.' );
+		$this->assertSame( $product, $licenses['licenses'][0]['product_id'] );
+	}
+
+	public function test_a_pending_manual_order_does_not_issue_a_license_until_completed() {
+
+		$customer = $this->create_customer();
+		$product  = $this->create_licensed_product();
+
+		$order = $this->run_ok( 'edd-alt/create-order', [ 'customer_id' => $customer, 'status' => 'pending', 'items' => [ [ 'product_id' => $product ] ] ] );
+
+		$this->assertSame( 0, $this->run_ok( 'edd-alt/list-licenses', [ 'order_id' => $order['id'] ] )['total_items'] );
+
+		$this->run_ok( 'edd-alt/update-order-status', [ 'id' => $order['id'], 'status' => 'complete' ] );
+
+		$this->assertSame( 1, $this->run_ok( 'edd-alt/list-licenses', [ 'order_id' => $order['id'] ] )['total_items'] );
+	}
+
 	public function test_get_license_by_id_and_by_key() {
 
 		$product = $this->create_licensed_product( [ 'post_title' => 'Licensed Plugin', 'limit' => 3 ] );

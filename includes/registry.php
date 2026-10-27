@@ -14,6 +14,7 @@ use EDD_Abilities\Abilities\Licenses\Get_License;
 use EDD_Abilities\Abilities\Licenses\List_Licenses;
 use EDD_Abilities\Abilities\Licenses\Update_License_Status;
 use EDD_Abilities\Abilities\Orders\Add_Order_Note;
+use EDD_Abilities\Abilities\Orders\Create_Order;
 use EDD_Abilities\Abilities\Orders\Get_Order;
 use EDD_Abilities\Abilities\Orders\List_Orders;
 use EDD_Abilities\Abilities\Orders\Refund_Order;
@@ -74,6 +75,40 @@ class Registry {
 	public function __construct() {
 		add_action( self::CATEGORIES_HOOK, [ $this, 'register_categories' ] );
 		add_action( self::ABILITIES_HOOK, [ $this, 'register_abilities' ] );
+		add_filter( 'wp_register_ability_args', [ $this, 'expose_edd_abilities' ], 10, 2 );
+	}
+
+	/**
+	 * EDD's own abilities (edd/...) are registered without meta.public, which the MCP Adapter reads
+	 * as "not for MCP", so agents never see them. Mark them public unless EDD or another plugin has
+	 * already said otherwise. Their own capability checks and EDD's write opt-in still apply.
+	 *
+	 * @param array  $args
+	 * @param string $name
+	 *
+	 * @return array
+	 */
+	public function expose_edd_abilities( $args, $name ) {
+
+		if ( 0 !== strpos( (string) $name, 'edd/' ) ) {
+			return $args;
+		}
+
+		/**
+		 * Filter whether EDD's own abilities are exposed to MCP.
+		 *
+		 * @param bool   $expose
+		 * @param string $name the ability name, e.g. edd/order-read
+		 */
+		if ( ! apply_filters( 'edd_abilities/expose_core_abilities', true, $name ) ) {
+			return $args;
+		}
+
+		if ( ! isset( $args['meta']['public'] ) && ! isset( $args['meta']['mcp']['public'] ) ) {
+			$args['meta']['public'] = true;
+		}
+
+		return $args;
 	}
 
 	/**
@@ -204,6 +239,7 @@ class Registry {
 			List_Orders::class,
 			Get_Order::class,
 			Update_Order_Status::class,
+			Create_Order::class,
 			Refund_Order::class,
 			Add_Order_Note::class,
 			// Customers

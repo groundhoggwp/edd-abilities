@@ -4,3 +4,4 @@ Thumbs.db
 vendor/
 node_modules/
 *.log
+.phpunit.result.cache

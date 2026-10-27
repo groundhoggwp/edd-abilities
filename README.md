@@ -27,8 +27,11 @@ and any Abilities API consumer can use them.
 
 ### EDD's own abilities
 
-EDD 3.7.1 and later register abilities of their own (named like `edd/order-read` and `edd/customer-update`,
-hidden from MCP unless the store owner opts in under Downloads > Tools > AI). Those are EDD's official ones.
+EDD 3.7.1 and later register abilities of their own (named like `edd/order-read` and `edd/customer-update`;
+the ones that change data also need the store owner to opt in under Downloads > Tools > AI). Those are EDD's official ones.
+EDD does not mark them as public, which the MCP Adapter reads as "not for MCP", so this plugin marks every
+`edd/` ability public for you. To turn that off, return false from the `edd_abilities/expose_core_abilities`
+filter (it receives the ability name).
 Everything in this plugin is an **alternative**, not an official EDD ability, so every name uses the
 `edd-alt/` prefix and every category starts `edd-alt-`. That keeps the two sets side by side without
 clashing: WordPress keeps only the first registration of a name, and EDD's own command palette already
@@ -136,8 +139,9 @@ products?" or "Refund $10 of order 1234, the second item only."
 - **The token can do what its user can do.** Connect a dedicated user with just the roles you're happy
   for an assistant to hold (for example Shop Manager) rather than an administrator.
 - **Some abilities are marked destructive** so a well-behaved client asks before running them:
-  `edd-alt/refund-order`, `edd-alt/cancel-subscription` and `edd-alt/release-product-version`. None can be undone
-  from here.
+  `edd-alt/create-order`, `edd-alt/refund-order`, `edd-alt/cancel-subscription` and
+  `edd-alt/release-product-version`. None can be undone from here (a created order can be refunded, but it
+  will have counted towards earnings and may have issued licenses in the meantime).
 - **Hide an ability entirely** by removing it from the registry:
 
   ```php
@@ -159,7 +163,7 @@ products?" or "Refund $10 of order 1234, the second item only."
 
 ## Available abilities
 
-23 abilities: 16 that need only EDD, 3 each for Software Licensing and Recurring Payments, and 1 that
+24 abilities: 17 that need only EDD, 3 each for Software Licensing and Recurring Payments, and 1 that
 needs Software Licensing and the Git Download Updater together. "Requires" is the capability the
 connected user must hold. *Read* abilities change nothing.
 
@@ -170,6 +174,7 @@ connected user must hold. *Read* abilities change nothing.
 | `edd-alt/list-orders` | Read | `edit_shop_payments` | List or search orders. Filter by status, customer, email, product, gateway, date range; sort; page. Sales only by default; refund orders on request. |
 | `edd-alt/get-order` | Read | `edit_shop_payments` | One order in full: line items, billing address, applied discounts, notes, and whether it is still refundable. |
 | `edd-alt/update-order-status` | Write | `edit_shop_payments` | Change an order's status through EDD's own status handling, so anything hooked to a status change runs. Cannot be used to refund. |
+| `edd-alt/create-order` | **Destructive** | `edit_shop_payments` | Create a manual order for an existing customer (`customer_id`) or an email address (a customer is created if it is new), with one or more products (price option, quantity, optional price override), an optional discount code, gateway and note. The order goes in as pending and is then moved to the requested status (default `complete`), so earnings, customer lifetime value, discount usage and any Software Licensing licenses are handled by EDD. **No email is sent unless `send_emails` is true** (EDD's own `order-create` sends by default). No payment is collected, tax is not calculated (the result says `tax_calculated: false`), and bundles and other special product types are refused. |
 | `edd-alt/refund-order` | **Destructive** | `edit_shop_payments` | Full refund, or a **partial refund** of chosen items by quantity and amount (plus tax). A partial refund never refunds fees or credits. EDD's own validator rejects over-refunds. |
 | `edd-alt/add-order-note` | Write | `edit_shop_payments` | Add a private admin note to an order. |
 

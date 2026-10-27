@@ -8,6 +8,7 @@ callback and output validation are all exercised the way an MCP client would hit
 |---|---|
 | `registry-test.php` | Registration, categories, annotations, permissions for every ability, third-party registration rules |
 | `orders-test.php` | List/get/status/notes, full and partial refunds, permissions |
+| `create-order-test.php` | Manual orders: totals, statuses, discounts, customers, unsupported products, email flags, permissions |
 | `customers-test.php` | Search/get/create/update, EDD's customer capability filters |
 | `discounts-test.php` | Create/list/status, code normalisation, timezone handling of dates |
 | `products-test.php` | List/get, variable prices, stats gated by capability |

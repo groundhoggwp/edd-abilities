@@ -14,6 +14,7 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 		'edd-alt/list-orders'          => 'edd-alt-orders',
 		'edd-alt/get-order'            => 'edd-alt-orders',
 		'edd-alt/update-order-status'  => 'edd-alt-orders',
+		'edd-alt/create-order'         => 'edd-alt-orders',
 		'edd-alt/refund-order'         => 'edd-alt-orders',
 		'edd-alt/add-order-note'       => 'edd-alt-orders',
 		'edd-alt/list-customers'     => 'edd-alt-customers',
@@ -64,7 +65,7 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 			$checked++;
 		}
 
-		$this->assertGreaterThanOrEqual( 23, $checked );
+		$this->assertGreaterThanOrEqual( 24, $checked );
 	}
 
 	public function test_nothing_this_plugin_registers_uses_the_official_edd_namespace() {
@@ -173,6 +174,39 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 		}
 	}
 
+	public function test_edd_own_abilities_are_exposed_to_mcp() {
+
+		$core = array_filter( array_map( function ( $ability ) {
+			return $ability->get_name();
+		}, wp_get_abilities() ), function ( $name ) {
+			return 0 === strpos( $name, 'edd/' );
+		} );
+
+		$this->assertNotEmpty( $core, 'EDD should have registered abilities of its own' );
+
+		foreach ( $core as $name ) {
+			$this->assertTrue( wp_get_ability( $name )->get_meta()['public'], "$name should be exposed to MCP" );
+		}
+	}
+
+	public function test_expose_filter_respects_an_explicit_choice_and_the_opt_out() {
+
+		$registry = \EDD_Abilities\Plugin::instance()->registry;
+
+		$this->assertTrue( $registry->expose_edd_abilities( [], 'edd/order-read' )['meta']['public'] );
+		$this->assertArrayNotHasKey( 'meta', $registry->expose_edd_abilities( [], 'other/thing' ) );
+
+		$private = [ 'meta' => [ 'public' => false ] ];
+		$this->assertFalse( $registry->expose_edd_abilities( $private, 'edd/order-read' )['meta']['public'] );
+
+		$mcp_private = [ 'meta' => [ 'mcp' => [ 'public' => false ] ] ];
+		$this->assertArrayNotHasKey( 'public', $registry->expose_edd_abilities( $mcp_private, 'edd/order-read' )['meta'] );
+
+		add_filter( 'edd_abilities/expose_core_abilities', '__return_false' );
+		$this->assertSame( [], $registry->expose_edd_abilities( [], 'edd/order-read' ) );
+		remove_filter( 'edd_abilities/expose_core_abilities', '__return_false' );
+	}
+
 	public function test_only_refund_and_cancel_are_destructive_and_reads_are_readonly() {
 
 		foreach ( $this->expected_abilities() as $name ) {
@@ -180,7 +214,7 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 			$is_read     = 0 === strpos( $name, 'edd-alt/list-' ) || 0 === strpos( $name, 'edd-alt/get-' );
 
 			$this->assertSame( $is_read, $annotations['readonly'], "$name readonly annotation" );
-			$this->assertSame( in_array( $name, [ 'edd-alt/refund-order', 'edd-alt/cancel-subscription', 'edd-alt/release-product-version' ], true ), $annotations['destructive'], "$name destructive annotation" );
+			$this->assertSame( in_array( $name, [ 'edd-alt/create-order', 'edd-alt/refund-order', 'edd-alt/cancel-subscription', 'edd-alt/release-product-version' ], true ), $annotations['destructive'], "$name destructive annotation" );
 		}
 	}
 
