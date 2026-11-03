@@ -55,6 +55,11 @@ class Update_Order_Status extends Ability {
 		$status = sanitize_key( $input['status'] ?? '' );
 		$order  = edd_get_order( $id );
 
+		// The input schema already omits these; enforce it here in case validation is bypassed.
+		if ( in_array( $status, self::REFUND_STATUSES, true ) ) {
+			return new \WP_Error( 'edd_abilities_use_refund_order', __( 'Refunds must go through edd-alt/refund-order, not a status change.', 'edd-abilities' ) );
+		}
+
 		if ( ! $order ) {
 			return $this->not_found( 'order', $id );
 		}

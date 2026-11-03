@@ -30,7 +30,36 @@ require_once EDD_ABILITIES_PATH . 'includes/autoloader.php';
 // EDD boots on plugins_loaded, so wait until it has had the chance to.
 add_action( 'plugins_loaded', function () {
 
-	if ( ! function_exists( 'wp_register_ability' ) || ! class_exists( 'Easy_Digital_Downloads' ) ) {
+	$missing = [];
+
+	if ( ! function_exists( 'wp_register_ability' ) ) {
+		$missing[] = __( 'the WordPress Abilities API (WordPress 6.9 or newer)', 'edd-abilities' );
+	}
+
+	if ( ! class_exists( 'Easy_Digital_Downloads' ) ) {
+		$missing[] = __( 'Easy Digital Downloads', 'edd-abilities' );
+	}
+
+	if ( $missing ) {
+
+		add_action( 'admin_notices', function () use ( $missing ) {
+
+			if ( ! current_user_can( 'activate_plugins' ) ) {
+				return;
+			}
+
+			printf(
+				'<div class="notice notice-warning"><p>%s</p></div>',
+				esc_html(
+					sprintf(
+						/* translators: %s: a list of what is missing, e.g. "Easy Digital Downloads" */
+						__( 'Abilities for Easy Digital Downloads is active but has not registered any abilities. It requires %s.', 'edd-abilities' ),
+						implode( ' ' . __( 'and', 'edd-abilities' ) . ' ', $missing )
+					)
+				)
+			);
+		} );
+
 		return;
 	}
 

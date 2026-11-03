@@ -70,7 +70,9 @@ abstract class Ability {
 	abstract public function __invoke( $input );
 
 	/**
-	 * Whether the current user may execute the ability.
+	 * Whether the current user may execute the ability. Denies by default: a subclass must set
+	 * CAPABILITY or override this (as Checks_Customer_Caps does), so forgetting one never leaves
+	 * an ability open to everyone.
 	 *
 	 * @param mixed $input
 	 *
@@ -79,7 +81,13 @@ abstract class Ability {
 	public function can_execute( $input = null ) {
 
 		if ( ! static::CAPABILITY ) {
-			return true;
+			_doing_it_wrong(
+				static::class,
+				esc_html__( 'This ability sets no CAPABILITY and does not override can_execute(), so it is denied to everyone.', 'edd-abilities' ),
+				EDD_ABILITIES_VERSION
+			);
+
+			return false;
 		}
 
 		return current_user_can( static::CAPABILITY );

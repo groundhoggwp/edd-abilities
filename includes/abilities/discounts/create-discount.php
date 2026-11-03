@@ -91,15 +91,14 @@ class Create_Discount extends Ability {
 				continue;
 			}
 
-			$local = $this->to_local_datetime( (string) $input[ $key ], $default_time );
+			$utc = $this->to_utc_datetime( (string) $input[ $key ], $default_time );
 
-			if ( ! $local ) {
+			if ( ! $utc ) {
 				/* translators: %s: the input field name */
 				return new \WP_Error( 'edd_abilities_invalid_date', sprintf( __( '%s is not a valid date.', 'edd-abilities' ), $key ) );
 			}
 
-			// EDD stores discount dates in UTC.
-			$data[ $key ] = get_gmt_from_date( $local );
+			$data[ $key ] = $utc;
 		}
 
 		$id = edd_add_discount( $data );
@@ -112,15 +111,16 @@ class Create_Discount extends Ability {
 	}
 
 	/**
-	 * Normalize a user-supplied date into a site-local 'Y-m-d H:i:s', appending a default time
-	 * when only a date was given.
+	 * Parse a user-supplied date in the site timezone and return it as the UTC 'Y-m-d H:i:s' EDD
+	 * stores, appending a default time when only a date was given. A value that carries its own
+	 * offset (e.g. 2026-10-01T09:00:00-05:00) keeps it.
 	 *
 	 * @param string $value
 	 * @param string $default_time
 	 *
 	 * @return string|false false if unparseable
 	 */
-	protected function to_local_datetime( string $value, string $default_time ) {
+	protected function to_utc_datetime( string $value, string $default_time ) {
 
 		$value = trim( $value );
 
@@ -128,8 +128,12 @@ class Create_Discount extends Ability {
 			$value .= ' ' . $default_time;
 		}
 
-		$timestamp = strtotime( $value );
+		try {
+			$date = new \DateTimeImmutable( $value, wp_timezone() );
+		} catch ( \Exception $e ) {
+			return false;
+		}
 
-		return $timestamp ? gmdate( 'Y-m-d H:i:s', $timestamp ) : false;
+		return $date->setTimezone( new \DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
 	}
 }
