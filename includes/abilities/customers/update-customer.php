@@ -75,9 +75,8 @@ class Update_Customer extends Ability {
 			$data['user_id'] = $user_id;
 		}
 
-		if ( $data ) {
-			$customer->update( $data );
-		}
+		// Validate the email before writing anything, so a bad one can't leave the other changes half applied.
+		$new_email = '';
 
 		if ( ! empty( $input['add_email'] ) ) {
 
@@ -94,8 +93,17 @@ class Update_Customer extends Ability {
 			}
 
 			if ( ! $existing ) {
-				$customer->add_email( $email );
+				$new_email = $email;
 			}
+		}
+
+		// EDD reports an update that changes nothing as success, so false means a real failure.
+		if ( $data && ! $customer->update( $data ) ) {
+			return new \WP_Error( 'edd_abilities_update_failed', __( 'EDD could not update the customer.', 'edd-abilities' ) );
+		}
+
+		if ( $new_email && ! $customer->add_email( $new_email ) ) {
+			return new \WP_Error( 'edd_abilities_add_email_failed', __( 'EDD could not attach the email address to the customer.', 'edd-abilities' ) );
 		}
 
 		return Customer_Schema::transform( $id, [ 'emails' ] );

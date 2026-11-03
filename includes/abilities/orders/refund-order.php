@@ -96,9 +96,16 @@ class Refund_Order extends Ability {
 			return $refund_id;
 		}
 
+		// edd_refund_order() can also fail with a falsy value instead of a WP_Error.
+		$refund = absint( $refund_id ) ? edd_get_order( absint( $refund_id ) ) : false;
+
+		if ( ! $refund ) {
+			return new \WP_Error( 'edd_abilities_refund_failed', __( 'EDD could not create the refund order.', 'edd-abilities' ) );
+		}
+
 		return [
-			'refund_order_id' => (int) $refund_id,
-			'refund'          => Order_Schema::transform( edd_get_order( $refund_id ), [ 'items' ] ),
+			'refund_order_id' => (int) $refund->id,
+			'refund'          => Order_Schema::transform( $refund, [ 'items' ] ),
 			'order'           => Order_Schema::transform( edd_get_order( $id ), [ 'items' ] ),
 		];
 	}
