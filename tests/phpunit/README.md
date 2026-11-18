@@ -13,6 +13,7 @@ callback and output validation are all exercised the way an MCP client would hit
 | `discounts-test.php` | Create/list/status, code normalisation, timezone handling of dates |
 | `products-test.php` | List/get, variable prices, stats gated by capability |
 | `store-stats-test.php` | Totals, tax, refunds, custom date ranges |
+| `download-logs-test.php` | `edd-alt/analyze-download-logs` and `edd-alt/list-download-logs`: totals, previous-period comparison, every grouping, trend intervals, client families, flags, date and filter handling, the IP address capability gate |
 | `licenses-test.php` | Software Licensing abilities (skipped if the add-on is not loaded) |
 | `subscriptions-test.php` | Recurring Payments abilities (skipped if the add-on is not loaded) |
 | `releases-test.php` | `edd-alt/release-product-version`: fetch, changelog prepend, guard clauses, permissions (skipped unless Software Licensing and the Git Download Updater are both loaded) |
@@ -51,6 +52,6 @@ phpunit
   initialises the Abilities API registries before the test lib snapshots hook state (otherwise
   `did_action()` reads 0 in later tests).
 - `framework/class-edd-abilities-test-case.php` provides fixtures (`create_customer`, `create_product`,
-  `create_order`) that write through EDD 3's own functions without going through checkout, plus
+  `create_order`, `create_download_log`) that write through EDD 3's own functions without going through checkout, plus
   `run_ability()` / `run_ok()`.
 - Every test runs as a user holding all shop capabilities; permission tests swap to a narrower user.

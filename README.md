@@ -163,7 +163,7 @@ products?" or "Refund $10 of order 1234, the second item only."
 
 ## Available abilities
 
-24 abilities: 17 that need only EDD, 3 each for Software Licensing and Recurring Payments, and 1 that
+26 abilities: 19 that need only EDD, 3 each for Software Licensing and Recurring Payments, and 1 that
 needs Software Licensing and the Git Download Updater together. "Requires" is the capability the
 connected user must hold. *Read* abilities change nothing.
 
@@ -212,6 +212,33 @@ that remaps who can see or edit customers is respected. By default that is `view
 | Ability | Type | Requires | What it does |
 |---|---|---|---|
 | `edd-alt/get-store-stats` | Read | `view_shop_reports` | Earnings, order count, average order value, refunds, tax, discount savings, new customers and top products for a named or custom date range. Computed by EDD's own `Stats` class so it matches Downloads > Reports. |
+| `edd-alt/analyze-download-logs` | Read | `view_shop_reports` | Analyze the file download log (Downloads > Reports > File Downloads): totals, change against the previous period of the same length, a breakdown, a trend over time, and flags for orders whose download link looks shared. See below. |
+| `edd-alt/list-download-logs` | Read | `view_shop_reports` | The individual download log entries, filtered by product, file, customer, order or date, newest first. IP addresses are only included for users who also hold `view_shop_sensitive_data`. |
+
+`edd-alt/analyze-download-logs` does its counting in SQL, so it stays quick on a log with millions of rows, and
+it returns a handful of figures rather than the rows. It defaults to the last 30 days; give `created_after` /
+`created_before` (`YYYY-MM-DD`, or with a time; a bare end date covers that whole day) to look elsewhere.
+Times are UTC, which is how EDD stores them, and that includes the day, week, month and hour-of-day
+groupings. It can be narrowed with `product_id`, `file_id`, `customer_id` and `order_id`. It returns:
+
+- `totals`: downloads, distinct products, customers, orders and IP addresses, the average per day, and
+  the first and last download.
+- `comparison`: the same total for the previous period of equal length, with the change and the change as
+  a percentage (null when the previous period had no downloads). Turn it off with `compare_previous: false`.
+- `breakdown`: grouped by `group_by`, each row with its downloads, share of the total, distinct customers and
+  first/last download, sorted and paged with `sort`, `order`, `limit` and `offset`. `group_by` is one of
+  `product` (the default), `file`, `customer`, `order`, `client`, `day`, `week`, `month`, `hour_of_day`,
+  `day_of_week` or `ip`. `client` sorts the user agent into Chrome, Edge, Firefox, Safari, WordPress
+  (plugin updates), script (curl, Python and similar), bot and other, which is a quick way to see how much
+  of the traffic is not a person. `ip` needs `view_shop_sensitive_data`.
+- `trend`: downloads per day, week or month (`trend: auto` picks one to suit the length of the period; `none`
+  leaves it out), with the peak period. Periods with no downloads are not listed.
+- `flags`: orders whose download link was used from at least `flag_min_ips` different IP addresses (default 5)
+  or downloaded at least `flag_min_downloads` times (default 20), the usual signs of a shared link or a
+  script hammering it. Turn it off with `include_flags: false`.
+
+An agent will typically analyze first, then run `edd-alt/list-download-logs` with an order or customer from a
+flag to see the entries behind it.
 
 ### Software Licensing *(only when EDD Software Licensing is active)*
 

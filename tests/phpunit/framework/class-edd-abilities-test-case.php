@@ -203,6 +203,32 @@ abstract class EDD_Abilities_Test_Case extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Record one file download in EDD's download log, the way a real download would.
+	 *
+	 * @param array $args log fields (product_id, file_id, order_id, price_id, customer_id, ip, user_agent, date_created);
+	 *                    defaults to a Chrome download of a new product, just now
+	 *
+	 * @return int log id
+	 */
+	protected function create_download_log( array $args = [] ): int {
+
+		$id = edd_add_file_download_log( array_merge( [
+			'product_id'   => $this->create_product(),
+			'file_id'      => 0,
+			'order_id'     => 1,
+			'price_id'     => 0,
+			'customer_id'  => 0,
+			'ip'           => '203.0.113.1',
+			'user_agent'   => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
+			'date_created' => gmdate( 'Y-m-d H:i:s' ),
+		], $args ) );
+
+		$this->assertNotEmpty( $id );
+
+		return (int) $id;
+	}
+
+	/**
 	 * @param int $order_id
 	 *
 	 * @return int[] the order's item ids, in cart order

@@ -28,6 +28,8 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 		'edd-alt/create-discount'      => 'edd-alt-discounts',
 		'edd-alt/update-discount-status' => 'edd-alt-discounts',
 		'edd-alt/get-store-stats'      => 'edd-alt-reports',
+		'edd-alt/analyze-download-logs' => 'edd-alt-reports',
+		'edd-alt/list-download-logs'   => 'edd-alt-reports',
 	];
 
 	public function test_core_abilities_are_registered_in_their_category() {
@@ -65,7 +67,7 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 			$checked++;
 		}
 
-		$this->assertGreaterThanOrEqual( 24, $checked );
+		$this->assertGreaterThanOrEqual( 26, $checked );
 	}
 
 	public function test_nothing_this_plugin_registers_uses_the_official_edd_namespace() {
@@ -211,7 +213,7 @@ class Registry_Test extends EDD_Abilities_Test_Case {
 
 		foreach ( $this->expected_abilities() as $name ) {
 			$annotations = wp_get_ability( $name )->get_meta()['annotations'];
-			$is_read     = 0 === strpos( $name, 'edd-alt/list-' ) || 0 === strpos( $name, 'edd-alt/get-' );
+			$is_read     = 0 === strpos( $name, 'edd-alt/list-' ) || 0 === strpos( $name, 'edd-alt/get-' ) || 0 === strpos( $name, 'edd-alt/analyze-' );
 
 			$this->assertSame( $is_read, $annotations['readonly'], "$name readonly annotation" );
 			$this->assertSame( in_array( $name, [ 'edd-alt/create-order', 'edd-alt/refund-order', 'edd-alt/cancel-subscription', 'edd-alt/release-product-version' ], true ), $annotations['destructive'], "$name destructive annotation" );

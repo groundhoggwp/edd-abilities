@@ -22,7 +22,9 @@ use EDD_Abilities\Abilities\Orders\Update_Order_Status;
 use EDD_Abilities\Abilities\Products\Get_Product;
 use EDD_Abilities\Abilities\Products\List_Products;
 use EDD_Abilities\Abilities\Releases\Release_Product_Version;
+use EDD_Abilities\Abilities\Reports\Analyze_Download_Logs;
 use EDD_Abilities\Abilities\Reports\Get_Store_Stats;
+use EDD_Abilities\Abilities\Reports\List_Download_Logs;
 use EDD_Abilities\Abilities\Subscriptions\Cancel_Subscription;
 use EDD_Abilities\Abilities\Subscriptions\Get_Subscription;
 use EDD_Abilities\Abilities\Subscriptions\List_Subscriptions;
@@ -204,7 +206,7 @@ class Registry {
 			],
 			'edd-alt-reports'       => [
 				'label'       => __( 'EDD Alt Reports', 'edd-abilities' ),
-				'description' => __( 'Store-wide earnings and sales statistics.', 'edd-abilities' ),
+				'description' => __( 'Store-wide earnings and sales statistics, and analysis of file download logs.', 'edd-abilities' ),
 			],
 			'edd-alt-licenses'      => [
 				'label'       => __( 'EDD Alt Software Licensing', 'edd-abilities' ),
@@ -257,6 +259,8 @@ class Registry {
 			Update_Discount_Status::class,
 			// Reports
 			Get_Store_Stats::class,
+			Analyze_Download_Logs::class,
+			List_Download_Logs::class,
 			// Software Licensing
 			List_Licenses::class,
 			Get_License::class,
